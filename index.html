@@ -252,6 +252,52 @@ input[type=range]{width:100%;accent-color:var(--gold)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .foot{text-align:center;font-size:11px;color:var(--mut);margin-top:28px;line-height:1.6}
 .empty{padding:30px;text-align:center;color:var(--mut)}
+
+/* ---------- modo rápido ---------- */
+.qwrap{display:grid;gap:12px}
+.qwrap>*{min-width:0}
+.qwrap.solo{grid-template-columns:1fr!important}
+@media(min-width:760px){.qwrap{grid-template-columns:minmax(300px,.9fr) 1.1fr;align-items:start}}
+.chu{border-radius:20px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(8px)}
+.chu h2{margin:0 0 10px;font-family:var(--fd);font-weight:400;font-size:20px}
+.chr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.chl{font-size:12px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;min-width:96px}
+.chp{display:flex;gap:6px}.chp .por{width:44px;height:44px;border-radius:12px}
+.resp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rr{display:flex;align-items:center;gap:5px;padding:6px;border-radius:14px;background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.25)}
+.rr .por{width:38px;height:38px;border-radius:10px}
+.rr .por:first-child{box-shadow:0 0 0 2px var(--them)}
+.arw{color:var(--mut);font-weight:900}
+.strip{display:grid;grid-template-columns:repeat(6,minmax(0,88px));justify-content:center;gap:6px;margin-bottom:10px}
+.s6{position:relative;aspect-ratio:1;border-radius:14px;border:2px solid transparent;cursor:pointer;background:rgba(255,255,255,.05)}
+.s6.us{border-color:color-mix(in srgb,var(--us) 70%,transparent)}.s6.them{border-color:color-mix(in srgb,var(--them) 70%,transparent)}
+.s6 .por{width:100%;height:100%;border-radius:12px}
+.s6 .e{width:100%;height:100%;display:grid;place-items:center;font-family:var(--fd);font-size:22px;color:var(--mut)}
+.s6 .o{position:absolute;left:-4px;top:-6px;z-index:5;font-family:var(--fd);font-size:12px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.s6.us .o{background:var(--us)}.s6.them .o{background:var(--them)}
+.s6.act{border-color:var(--gold);animation:pulse 1.2s ease-in-out infinite}
+.turn .big{font-size:22px}
+.q3 .rc{margin-bottom:6px;padding:8px}
+.q3 .rc .por{width:50px;height:50px}
+.bbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.bmini{display:flex;gap:4px;flex-wrap:wrap}
+.bm .por{width:30px;height:30px;border-radius:8px;filter:grayscale(1) brightness(.7)}
+.gtools{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:6;padding:6px 0 2px;background:linear-gradient(180deg,rgba(10,12,29,.95),rgba(10,12,29,.8))}
+.gtools .chips{flex:1;padding-bottom:6px}
+.gtools .chip{padding:6px 10px;font-size:12px}
+.sortb{flex:0 0 auto;font-size:12px;font-weight:800;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.1);margin-bottom:6px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:8px 6px;margin-top:6px}
+@media(min-width:900px){.qgrid{grid-template-columns:repeat(auto-fill,minmax(74px,1fr))}}
+.qt{position:relative;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.qt .por{width:100%;height:auto;aspect-ratio:1;border-radius:15px}
+.qt:active .por{transform:scale(.92)}
+.qt .gn{font-size:10.5px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qt.off{opacity:.22;filter:grayscale(1)}
+.qt.ban .por{filter:grayscale(1) brightness(.6)}
+.qt .x{position:absolute;inset:0 0 16px;display:grid;place-items:center;z-index:4;color:var(--them);font-size:34px;font-weight:900;text-shadow:0 0 6px #000;pointer-events:none}
+.qt.tp3 .por{box-shadow:0 0 0 3px var(--gold),0 0 16px rgba(255,198,41,.6)}
+.qt .rk{position:absolute;top:-5px;left:-4px;z-index:5;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#2a1500;font-family:var(--fd);font-size:12px;display:grid;place-items:center}
+button,.qt,.s6,.rc{touch-action:manipulation}
 @media(min-width:760px){
   .dwrap{display:grid;grid-template-columns:1.05fr 1fr;gap:14px;align-items:start}
   .board{margin-bottom:0}

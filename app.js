@@ -26,7 +26,7 @@
     format: LS.get("format", "ranked"), mode: LS.get("mode", "all"), allMaps: LS.get("allMaps", false),
     pool: LS.get("pool", []), poolOnly: LS.get("poolOnly", false), style: LS.get("style", 0.5),
     history: LS.get("history", []), draft: LS.get("draft", null), undo: [],
-    live: { ok: null, maps: {}, nuevos: [] }, sheet: null, pf: { q: "", cls: "all" },
+    live: { ok: null, maps: {}, nuevos: [] }, sheet: null, pf: { q: "", cls: "all" }, gridSort: LS.get("gridSort", "prob"),
   };
 
   // ---------------- utilidades visuales ----------------
@@ -149,105 +149,72 @@
     } catch (e) {}
   }
 
-  // ---------------- draft ----------------
-  function newDraft(mapId, firstPick) {
+  // ---------------- draft (modo rápido) ----------------
+  // Un toque por turno: el orden de selección avanza solo. Los bloqueos son opcionales y van todos juntos.
+  function newDraft(mapId) {
     return {
-      mapId, firstPick, format: S.format, phase: S.format === "bsc" ? "gbans" : "bans",
-      bans: { us: [null, null, null], them: [null, null, null] },
-      globalBans: { us: [null, null], them: [null, null] },
+      v: 2, mapId, firstPick: null, format: S.format, phase: "prep",
+      bans: { us: [], them: [] }, globalBans: { us: [], them: [] },
       picks: { us: [null, null, null], them: [null, null, null] },
-      active: null, flash: null, t: Date.now(), result: null,
+      active: null, banMode: false, flash: null, t: Date.now(), result: null,
     };
   }
   function est(d) {
-    return { format: d.format, mapId: d.mapId, firstPick: d.firstPick, bans: d.bans, globalBans: d.globalBans, picks: d.picks,
+    return { format: d.format, mapId: d.mapId, firstPick: d.firstPick || "us", bans: d.bans, globalBans: d.globalBans, picks: d.picks,
       pool: S.pool, poolOnly: S.poolOnly, style: S.style };
   }
-  function autoActive(d) {
-    if (d.phase === "gbans") {
-      const A = d.firstPick, B = other(A), ord = [B, A, A, B], cnt = { us: 0, them: 0 };
-      for (const side of ord) { const i = cnt[side]++; if (!d.globalBans[side][i]) return { kind: "gban", side, slot: i }; }
-      return null;
-    }
-    if (d.phase === "bans") {
-      for (const side of ["us", "them"]) for (let i = 0; i < 3; i++) if (!d.bans[side][i]) return { kind: "ban", side, slot: i };
-      return null;
-    }
-    if (d.phase === "picks") {
-      const np = E.nextPick(est(d));
-      return np ? { kind: "pick", side: np.side, slot: np.slot, index: np.index } : null;
-    }
-    return null;
-  }
   function advance(d) {
-    let a = autoActive(d);
-    while (!a && d.phase !== "done") {
-      d.phase = d.phase === "gbans" ? "bans" : d.phase === "bans" ? "picks" : "done";
-      a = autoActive(d);
-    }
-    d.active = a;
+    if (d.phase === "prep") { d.active = null; return; }
+    const np = E.nextPick(est(d));
+    if (np) { d.phase = "picks"; d.active = { kind: "pick", side: np.side, slot: np.slot, index: np.index }; }
+    else { d.phase = "done"; d.active = null; }
   }
   function save() { LS.set("draft", S.draft); }
   function pushUndo() { S.undo.push(JSON.stringify(S.draft)); if (S.undo.length > 40) S.undo.shift(); }
-  function arrFor(d, a) { return a.kind === "pick" ? d.picks[a.side] : a.kind === "ban" ? d.bans[a.side] : d.globalBans[a.side]; }
-
+  function startPicks(first) {
+    const d = S.draft; pushUndo();
+    d.firstPick = first; d.phase = "picks"; d.banMode = false; advance(d); save(); render(); window.scrollTo(0, 0);
+  }
+  function toggleBan(id) {
+    const d = S.draft;
+    const isPicked = d.picks.us.indexOf(id) >= 0 || d.picks.them.indexOf(id) >= 0;
+    if (isPicked) return;
+    pushUndo();
+    const i = d.bans.us.indexOf(id);
+    if (i >= 0) d.bans.us.splice(i, 1); else d.bans.us.push(id);
+    d.flash = { ban: id }; save(); render();
+  }
   function assign(id) {
     const d = S.draft;
-    if (!d || !d.active) return;
+    if (!d) return;
+    if (d.banMode || d.phase === "prep") return toggleBan(id);
+    if (!d.active) return;
+    if (E.unavailable(est(d)).has(id)) return;
     pushUndo();
     const a = d.active;
-    arrFor(d, a)[a.slot] = id;
-    d.flash = { kind: a.kind, side: a.side, slot: a.slot };
-    advance(d);
-    save();
-    closeSheet();
-    render();
+    d.picks[a.side][a.slot] = id;
+    d.flash = { side: a.side, slot: a.slot };
+    advance(d); save(); render();
     if (navigator.vibrate) try { navigator.vibrate(12); } catch (e) {}
-    if (d.phase === "done") setTimeout(() => openSheet("summary"), 450);
+    if (d.phase === "done") setTimeout(() => openSheet("summary"), 400);
   }
-  function selectSlot(kind, side, slot) {
+  function clearSlot(side, slot) {
     const d = S.draft;
-    const a = { kind, side, slot };
-    const arr = arrFor(d, a);
-    if (arr[slot]) {
-      pushUndo();
-      arr[slot] = null;
-      if (d.phase === "done") d.phase = kind === "pick" ? "picks" : kind === "ban" ? "bans" : "gbans";
-      if (kind === "pick" && d.phase !== "picks") d.phase = "picks";
-      d.active = a; d.flash = null; save(); render();
-      return;
-    }
-    if (kind === "pick" && d.phase !== "picks") d.phase = "picks";
-    if (kind === "ban" && d.phase === "gbans") d.phase = "bans";
-    d.active = a; d.flash = null; save(); render();
-    openSheet("picker");
+    if (!d.picks[side][slot]) return;
+    pushUndo(); d.picks[side][slot] = null; d.flash = null; advance(d); save(); render();
   }
   function undo() {
     if (!S.undo.length) return toast("Nada que deshacer");
     S.draft = JSON.parse(S.undo.pop()); S.draft.flash = null; save(); render();
   }
-  function skipPhase() {
-    const d = S.draft; pushUndo();
-    d.phase = d.phase === "gbans" ? "bans" : "picks";
-    advance(d); save(); render();
-  }
-
-  function available(d, a) {
-    const st = est(d);
-    if (a.kind === "pick") return (id) => !E.unavailable(st).has(id);
-    const taken = new Set();
-    ["us", "them"].forEach((k) => { d.picks[k].forEach((x) => x && taken.add(x)); d.globalBans[k].forEach((x) => x && taken.add(x)); });
-    (a.kind === "ban" ? d.bans[a.side] : d.globalBans[a.side]).forEach((x) => x && taken.add(x));
-    if (a.kind === "gban") d.globalBans[other(a.side)].forEach((x) => x && taken.add(x));
-    return (id) => !taken.has(id);
-  }
-  function recsFor(d, n) {
-    const a = d.active;
-    if (!a) return [];
-    const st = est(d);
-    if (a.kind === "pick") return E.recommendPicks(st, a.side, n);
-    const ok = available(d, a);
-    return E.recommendBans(st, a.side).filter((r) => ok(r.b.id)).slice(0, n || 999);
+  // Chuleta: todo lo que necesitas saber del mapa antes de que empiece la selección
+  function cheatSheet(d) {
+    const st = (first, us, them) => Object.assign(est(d), { firstPick: first, picks: { us: us.concat([null, null, null]).slice(0, 3), them: them.concat([null, null, null]).slice(0, 3) } });
+    const bans = E.recommendBans(est(d), "us", 3);
+    const firsts = E.recommendPicks(st("us", [], []), "us", 3);
+    const theirs = E.recommendPicks(st("them", [], []), "them", 6);
+    const resp = theirs.map((r) => ({ x: r.b, ans: E.recommendPicks(st("them", [], [r.b.id]), "us", 2).map((a) => a.b) }));
+    return { bans, firsts, resp };
   }
 
   // ---------------- render: home ----------------
@@ -256,7 +223,7 @@
     const app = $("#app");
     if (S.draft && S.view === "draft") app.innerHTML = renderDraft();
     else { S.view = "home"; app.innerHTML = renderHome(); }
-    if (!skipSheet && S.sheet && S.sheet !== "picker") renderSheet();
+    if (!skipSheet && S.sheet) renderSheet();
   }
 
   function metaPill() {
@@ -312,139 +279,122 @@
     return h;
   }
 
-  // ---------------- render: draft ----------------
+  // ---------------- render: draft (modo rápido) ----------------
   function renderDraft() {
     const d = S.draft;
     const m = E.maps[d.mapId];
     const md = META.modos[m.modo];
-    const rules = META.reglas[d.format];
     const img = mapImg(m);
     let h = '<div class="dbg">' + (img ? '<img src="' + esc(img) + '" alt="" referrerpolicy="no-referrer" onerror="this.remove()">' : "") + "</div>";
     h += '<div class="dh"><button class="ib" data-act="home">←</button><div class="t"><div class="nm">' + esc(mapName(m)) + '</div><div class="md">' + modeIcon(m.modo) +
-      esc(md.nombre) + " · " + esc(rules.nombre) + "</div></div>" +
+      esc(md.nombre) + " · " + esc(META.reglas[d.format].nombre) + "</div></div>" +
       '<button class="ib" data-act="undo" title="Deshacer">↶</button><button class="ib" data-act="reset" title="Reiniciar">⟲</button></div>';
-    const phases = d.format === "bsc" ? [["gbans", "Bloqueos globales"], ["bans", "Bloqueos"], ["picks", "Selección"], ["done", "Resumen"]] : [["bans", "Bloqueos"], ["picks", "Selección"], ["done", "Resumen"]];
-    const pi = phases.findIndex((p) => p[0] === d.phase);
-    h += '<div class="steps">' + phases.map((p, i) => '<div class="' + (i === pi ? "on" : i < pi ? "ok" : "") + '">' + (i < pi ? "✓ " : "") + p[1] + "</div>").join("") + "</div>";
 
-    const a = d.active;
-    if (a) {
-      const us = a.side === "us";
-      const big = a.kind === "pick" ? (us ? "TE TOCA ELEGIR" : "ELIGE EL RIVAL") : a.kind === "gban" ? (us ? "TU BLOQUEO GLOBAL" : "BLOQUEO GLOBAL RIVAL") : us ? "TU BLOQUEO" : "BLOQUEO RIVAL";
-      const sm = a.kind === "pick" ? (us ? "Elige y bloquea en el juego" : "Marca lo que han elegido") : a.kind === "ban" ? (us ? "Los bloqueos son simultáneos" : "Marca sus bloqueos cuando se revelen") : "Para toda la serie";
-      h += '<div class="turn" style="--tc:' + (us ? "var(--us)" : "var(--them)") + '"><div class="num">' + (a.kind === "pick" ? a.index + 1 : "🚫") + '</div><div><div class="big">' + big + '</div><div class="sm">' + sm + "</div></div>" +
-        '<div class="sp"></div>' + (d.phase !== "picks" ? '<button class="skip" data-act="skip">Saltar →</button>' : "") +
-        (a.kind === "pick" ? '<div class="timer" style="animation-duration:' + (rules.segundosPorPick || 20) + 's"></div>' : "") + "</div>";
+    if (d.phase === "prep") {
+      const c = cheatSheet(d);
+      const row = (label, arr) => '<div class="chr"><span class="chl">' + label + '</span><div class="chp">' + arr.map((b) => por(b)).join("") + "</div></div>";
+      h += '<div class="qwrap"><div><div class="chu"><h2>📋 Chuleta del mapa</h2>' +
+        row("🚫 Bloquea", c.bans.map((r) => r.b)) +
+        row("⭐ Si eliges 1º", c.firsts.map((r) => r.b)) +
+        '<div class="chl" style="margin:10px 0 6px">⚔️ Si ellos cogen… → responde con</div><div class="resp">' +
+        c.resp.map((r) => '<div class="rr">' + por(r.x) + '<span class="arw">→</span>' + r.ans.map((b) => por(b)).join("") + "</div>").join("") + "</div></div>" +
+        '<div class="q" style="margin-top:14px">¿Quién elige primero?</div><div class="row"><button class="btn blue" data-act="start" data-v="us">🔵 Nosotros</button><button class="btn red" data-act="start" data-v="them">🔴 Ellos</button></div>' +
+        '<p class="small" style="margin-top:10px">Al empezar la selección solo tienes que tocar cada brawler según se elige: un toque por turno.</p></div>';
+      h += '<div>' + banBar(d) + (d.banMode ? gridHTML(d) : "") + "</div></div>";
+      return h;
+    }
+
+    // tira de orden 1-6
+    const ord = E.order(est(d));
+    const cnt = { us: 0, them: 0 };
+    h += '<div class="strip">' + ord.map((side, i) => {
+      const slot = cnt[side]++;
+      const id = d.picks[side][slot];
+      const b = id && E.byId[id];
+      const act = d.active && d.active.index === i;
+      const fl = d.flash && d.flash.side === side && d.flash.slot === slot;
+      return '<div class="s6 ' + side + (act ? " act" : "") + (fl ? " flash" : "") + '" data-act="clear" data-s="' + side + '" data-i="' + slot + '"><span class="o">' + (i + 1) + "</span>" +
+        (b ? por(b) : '<div class="e">' + (act ? "?" : "") + "</div>") + "</div>";
+    }).join("") + "</div>";
+
+    if (d.active && !d.banMode) {
+      const us = d.active.side === "us";
+      const nextSame = ord[d.active.index + 1] === d.active.side;
+      h += '<div class="turn" style="--tc:' + (us ? "var(--us)" : "var(--them)") + '"><div><div class="big">' + (us ? "TE TOCA" : "ELIGEN ELLOS") +
+        '</div><div class="sm">' + (us ? "Toca tu brawler" : "Toca lo que elijan") + (nextSame ? " · luego otro más" : "") + "</div></div>" +
+        '<div class="sp"></div><div class="timer" style="animation-duration:' + (META.reglas[d.format].segundosPorPick || 20) + 's"></div></div>';
     } else if (d.phase === "done") {
       const ev = E.evaluate(est(d));
-      h += '<div class="turn" style="--tc:var(--gold)" data-act="summary"><div class="num">🏁</div><div><div class="big">SELECCIÓN CERRADA</div><div class="sm">Probabilidad estimada ' + Math.round(ev.win * 100) + "% · toca para ver el plan</div></div></div>";
+      h += '<div class="turn" style="--tc:var(--gold)" data-act="summary"><div class="num">🏁</div><div><div class="big">LISTO</div><div class="sm">' + Math.round(ev.win * 100) + "% estimado · toca para ver el plan</div></div></div>";
     }
 
-    h += '<div class="dwrap"><div class="board">' + teamCol(d, "us") + teamCol(d, "them") + "</div><div>";
-    if (a) {
-      const recs = recsFor(d, 5);
-      const ttl = a.kind === "pick" ? (a.side === "us" ? "Mejores opciones para ti" : "Lo que probablemente elijan") : a.side === "us" ? "Bloqueos recomendados" : "Bloqueos probables del rival";
-      h += '<div class="recs"><h2>' + (a.side === "us" ? "🧠" : "🔮") + " " + ttl + '<span class="sp"></span></h2>';
-      recs.forEach((r, i) => (h += recCard(r, i, a)));
-      h += '<button class="more" data-act="picker">Ver todos los brawlers</button></div>';
-    } else if (d.phase === "done") {
-      h += '<div class="recs"><h2>🏁 Selección completa</h2><div class="row"><button class="btn" data-act="summary">Ver análisis y plan</button></div>' +
-        '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="again">Otra partida · mismo mapa</button><button class="btn ghost" data-act="home">Cambiar mapa</button></div></div>';
+    const left = (d.active && d.active.side === "us" && !d.banMode) || d.phase === "done";
+    h += '<div class="qwrap' + (left ? "" : " solo") + '"><div>';
+    if (d.active && d.active.side === "us" && !d.banMode) {
+      const recs = E.recommendPicks(est(d), "us", 3);
+      h += '<div class="recs q3">' + recs.map((r, i) => recCard(r, i)).join("") + "</div>";
     }
-    h += "</div></div>";
+    if (d.phase === "done") h += '<div class="row" style="margin:6px 0 12px"><button class="btn" data-act="summary">Ver plan de partida</button></div><div class="row"><button class="btn ghost" data-act="again">Siguiente partida · mismo mapa</button></div>';
+    h += "</div><div>" + banBar(d) + (d.phase !== "done" ? gridHTML(d) : "") + "</div></div>";
     return h;
   }
 
-  function teamCol(d, side) {
-    const us = side === "us";
-    const ord = E.order(est(d));
-    const nums = []; ord.forEach((s, i) => { if (s === side) nums.push(i + 1); });
-    const a = d.active || {};
-    let h = '<div class="team ' + side + '"><h3>' + (us ? "🔵 Nosotros" : "🔴 Rivales") + (d.firstPick === side ? ' <span class="tg">Elige 1º</span>' : "") + "</h3>";
-    if (d.format === "bsc") {
-      h += '<div class="lbl">Bloqueos globales</div><div class="bans">';
-      d.globalBans[side].forEach((id, i) => (h += banSlot(d, "gban", side, i, id, a)));
-      h += "</div>";
-    }
-    h += '<div class="lbl">Bloqueos</div><div class="bans">';
-    d.bans[side].forEach((id, i) => (h += banSlot(d, "ban", side, i, id, a)));
-    h += '</div><div class="lbl">Brawlers</div>';
-    d.picks[side].forEach((id, i) => {
-      const b = id && E.byId[id];
-      const act = a.kind === "pick" && a.side === side && a.slot === i;
-      const fl = d.flash && d.flash.kind === "pick" && d.flash.side === side && d.flash.slot === i;
-      h += '<div class="pslot ' + (b ? "f " : "") + (act ? "act " : "") + (fl ? "flash" : "") + '" data-act="slot" data-k="pick" data-s="' + side + '" data-i="' + i + '"><span class="o">' + nums[i] + "</span>" +
-        (b ? por(b) + '<div><div class="n">' + esc(b.nombre) + '</div><div class="c">' + esc((CLASS[b.clase] || CLASS["?"]).n) + "</div></div>" : '<div class="e">＋</div><div class="c">' + (act ? "Eligiendo…" : "Vacío") + "</div>") + "</div>";
-    });
-    return h + "</div>";
+  function banBar(d) {
+    const bl = d.bans.us.map((id) => E.byId[id]).filter(Boolean);
+    return '<div class="bbar"><button class="chip ' + (d.banMode ? "on" : "") + '" style="--mc:var(--them)" data-act="banmode">🚫 ' + (d.banMode ? "Marcando bloqueados · toca para terminar" : "Bloqueados" + (bl.length ? " (" + bl.length + ")" : " (opcional)")) + "</button>" +
+      '<div class="bmini">' + bl.map((b) => '<span class="bm" data-act="pick" data-v="' + b.id + '">' + por(b) + "</span>").join("") + "</div></div>";
   }
-  function banSlot(d, kind, side, i, id, a) {
-    const b = id && E.byId[id];
-    const act = a.kind === kind && a.side === side && a.slot === i;
-    const fl = d.flash && d.flash.kind === kind && d.flash.side === side && d.flash.slot === i;
-    return '<div class="bslot ' + (b ? "f " : "") + (act ? "act " : "") + (fl ? "stamp" : "") + '" data-act="slot" data-k="' + kind + '" data-s="' + side + '" data-i="' + i + '">' +
-      (b ? por(b) + '<span class="x">✕</span>' : "+") + "</div>";
+
+  function gridHTML(d) {
+    const st = est(d);
+    let scored;
+    if (d.banMode || d.phase === "prep") scored = E.recommendBans(st, "us");
+    else scored = E.recommendPicks(st, d.active ? d.active.side : "us");
+    const sc = {}, rank = {};
+    scored.forEach((r, i) => { sc[r.b.id] = r.score; rank[r.b.id] = i; });
+    const banned = new Set(d.bans.us);
+    const picked = new Set(d.picks.us.concat(d.picks.them).filter(Boolean));
+    let list = E.list.filter((b) => S.pf.cls === "all" || b.clase === S.pf.cls);
+    if (S.gridSort === "az") list.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    else list.sort((a, b) => ((rank[a.id] == null ? 999 : rank[a.id]) - (rank[b.id] == null ? 999 : rank[b.id])) || a.nombre.localeCompare(b.nombre));
+    const ours = !d.banMode && d.active && d.active.side === "us";
+    let h = '<div class="gtools"><div class="chips">' +
+      '<button class="chip ' + (S.pf.cls === "all" ? "on" : "") + '" data-act="pcls" data-v="all">Todos</button>' +
+      Object.keys(CLASS).filter((k) => k !== "?").map((k) => '<button class="chip ' + (S.pf.cls === k ? "on" : "") + '" style="--mc:' + CLASS[k].c + '" data-act="pcls" data-v="' + k + '">' + CLASS[k].n + "</button>").join("") +
+      '</div><button class="sortb" data-act="sort">' + (S.gridSort === "az" ? "A-Z" : "Probables") + " ⇅</button></div>";
+    h += '<div class="qgrid">' + list.map((b) => {
+      const isB = banned.has(b.id), isP = picked.has(b.id);
+      const off = d.banMode ? isP : isB || isP;
+      const r = rank[b.id];
+      const top = !off && ours && r != null && r < 3;
+      const fl = d.flash && d.flash.ban === b.id;
+      return '<div class="qt' + (off ? " off" : "") + (isB ? " ban" : "") + (top ? " tp3" : "") + (fl ? " flash" : "") + '" data-act="pick" data-v="' + b.id + '">' +
+        (top ? '<span class="rk">' + (r + 1) + "</span>" : "") + por(b) + (isB ? '<span class="x">✕</span>' : "") + '<div class="gn">' + esc(b.nombre) + "</div></div>";
+    }).join("") + "</div>";
+    return h;
   }
-  function recCard(r, i, a) {
-    const b = r.b, p = r.parts;
+
+  function recCard(r, i) {
+    const b = r.b;
     const pct = Math.round(Math.max(0, Math.min(1, r.score)) * 100);
-    const bar = (lab, v) => "<div>" + lab + "<i><b style=\"width:" + Math.round((v || 0) * 100) + '%"></b></i></div>';
-    const col = a.side === "us" ? "var(--gold)" : "var(--them)";
-    return '<div class="rc ' + (i === 0 && a.side === "us" ? "first" : "") + '" data-act="pick" data-v="' + b.id + '">' + por(b) +
-      '<div class="mid"><div class="n">' + esc(b.nombre) + (i === 0 && a.side === "us" ? ' <span class="best">★ Mejor</span>' : "") + ' <span class="cls" style="--cc:' + (CLASS[b.clase] || CLASS["?"]).c + '">' + esc((CLASS[b.clase] || CLASS["?"]).n) + "</span></div>" +
-      '<div class="rs">' + r.reasons.map((x) => '<span class="' + x.k + '">' + esc(x.t) + "</span>").join("") + "</div>" +
-      (a.kind === "pick" ? '<div class="bars">' + bar("Mapa", p.map) + bar("Contra", p.counter) + bar("Seguro", p.safe) + bar("Sinergia", p.syn) + "</div>" : "") +
-      '</div><div class="ring" style="--p:' + pct + ";--rcol:" + col + '"><span>' + pct + "</span></div></div>";
+    return '<div class="rc ' + (i === 0 ? "first" : "") + '" data-act="pick" data-v="' + b.id + '">' + por(b) +
+      '<div class="mid"><div class="n">' + esc(b.nombre) + (i === 0 ? ' <span class="best">★ Mejor</span>' : "") + "</div>" +
+      '<div class="rs">' + r.reasons.slice(0, 3).map((x) => '<span class="' + x.k + '">' + esc(x.t) + "</span>").join("") + "</div>" +
+      '</div><div class="ring" style="--p:' + pct + '"><span>' + pct + "</span></div></div>";
   }
 
   // ---------------- sheets ----------------
-  function openSheet(name, arg) { S.sheet = name; S.sheetArg = arg; if (name === "picker") S.pf = { q: "", cls: "all" }; renderSheet(); $("#ov").classList.add("on"); $("#sheet").classList.add("on"); }
+  function openSheet(name, arg) { S.sheet = name; S.sheetArg = arg; renderSheet(); $("#ov").classList.add("on"); $("#sheet").classList.add("on"); }
   function closeSheet() { S.sheet = null; $("#ov").classList.remove("on"); $("#sheet").classList.remove("on"); }
 
   function renderSheet() {
     const el = $("#sheet");
     let h = '<div class="grab"></div>';
-    if (S.sheet === "setup") h += sheetSetup();
-    else if (S.sheet === "picker") h += sheetPicker();
-    else if (S.sheet === "summary") h += sheetSummary();
+    if (S.sheet === "summary") h += sheetSummary();
     else if (S.sheet === "settings") h += sheetSettings();
     else if (S.sheet === "history") h += sheetHistory();
     else if (S.sheet === "changelog") h += sheetChangelog();
     el.innerHTML = h;
-    if (S.sheet === "picker") { const i = $(".srch", el); if (i && !matchMedia("(pointer:coarse)").matches) i.focus(); }
-  }
-
-  function sheetSetup() {
-    const m = E.maps[S.sheetArg];
-    const md = META.modos[m.modo];
-    let h = '<div class="hero" style="--mc:' + md.color + '">' + mapArt(m) + '<div class="cap"><div class="nm">' + esc(mapName(m)) + '</div><div class="small">' + modeIcon(m.modo) + " " + esc(md.nombre) + " · mapa " + esc(m.arquetipo) + (m.arbustos ? " con arbustos" : "") + "</div></div></div>";
-    if (m.top.length) h += '<div class="q">Los más fuertes ahora</div><div class="minis" style="display:flex;gap:6px;margin-bottom:14px">' + m.top.map((id) => por(E.byId[id])).join("") + "</div>";
-    else if ((m.sugeridos || []).length) h += '<div class="q">Recomendados (mapa nuevo, aún sin estadísticas)</div><div class="minis" style="display:flex;gap:6px;margin-bottom:14px">' + m.sugeridos.map((id) => por(E.byId[id])).join("") + "</div>";
-    h += '<div class="q">¿Quién elige primero?</div><div class="row"><button class="btn blue" data-act="start" data-v="us">🔵 Nosotros</button><button class="btn red" data-act="start" data-v="them">🔴 Rivales</button></div>';
-    if (S.format === "bsc") h += '<p class="small">En formato pro, el equipo que elige primero es el equipo A (bloqueos globales B→A→A→B).</p>';
-    return h;
-  }
-
-  function sheetPicker() {
-    const d = S.draft; const a = d.active;
-    if (!a) return '<div class="empty">Elige un hueco del tablero.</div>';
-    const ok = available(d, a);
-    const scored = a.kind === "pick" ? E.recommendPicks(est(d), a.side) : E.recommendBans(est(d), a.side);
-    const sc = {}; scored.forEach((r) => (sc[r.b.id] = r.score));
-    const q = norm(S.pf.q);
-    let list = E.list.slice().filter((b) => (S.pf.cls === "all" || b.clase === S.pf.cls) && (!q || norm(b.nombre).indexOf(q) >= 0));
-    list.sort((x, y) => (ok(y.id) - ok(x.id)) || ((sc[y.id] || 0) - (sc[x.id] || 0)));
-    const ttl = (a.kind === "pick" ? "Elección " : a.kind === "gban" ? "Bloqueo global " : "Bloqueo ") + (a.side === "us" ? "nuestro" : "rival");
-    let h = '<h2>' + (a.side === "us" ? "🔵 " : "🔴 ") + ttl + '<span class="sp"></span><button class="ib" data-act="close">✕</button></h2>';
-    h += '<input class="srch" placeholder="Buscar brawler…" value="' + esc(S.pf.q) + '" data-inp="q" autocomplete="off">';
-    h += '<div class="chips" style="margin-top:10px"><button class="chip ' + (S.pf.cls === "all" ? "on" : "") + '" data-act="pcls" data-v="all">Todas</button>';
-    Object.keys(CLASS).filter((k) => k !== "?").forEach((k) => (h += '<button class="chip ' + (S.pf.cls === k ? "on" : "") + '" style="--mc:' + CLASS[k].c + '" data-act="pcls" data-v="' + k + '">' + CLASS[k].n + "</button>"));
-    h += '</div><div class="grid" id="pgrid">' + list.map((b) => {
-      const can = ok(b.id);
-      const s = sc[b.id];
-      return '<div class="gi ' + (can ? "" : "off ") + (b.nuevo ? "new" : "") + '" data-act="pick" data-v="' + b.id + '">' + (can && s != null ? '<span class="sc">' + Math.round(s * 100) + "</span>" : "") + por(b) + '<div class="gn">' + esc(b.nombre) + "</div></div>";
-    }).join("") + "</div>";
-    return h;
   }
 
   function radarSVG(ru, rt) {
@@ -486,8 +436,7 @@
     const m = E.maps[d.mapId], md = META.modos[m.modo];
     const n = (arr) => arr.filter(Boolean).map((id) => E.byId[id].nombre).join(", ") || "—";
     return "Analiza este draft de Brawl Stars (" + META.reglas[d.format].nombre + ", mapa " + mapName(m) + " / " + m.nombre + " · " + md.nombre + "). Meta de referencia: " + META.meta.temporada + ", " + META.meta.parche + ".\n" +
-      (d.format === "bsc" ? "Bloqueos globales nuestros: " + n(d.globalBans.us) + " · rivales: " + n(d.globalBans.them) + "\n" : "") +
-      "Bloqueos nuestros: " + n(d.bans.us) + " · bloqueos rivales: " + n(d.bans.them) + "\n" +
+      "Bloqueados: " + n(d.bans.us.concat(d.bans.them)) + "\n" +
       "Primer pick: " + (d.firstPick === "us" ? "nosotros" : "rivales") + "\nNuestro equipo: " + n(d.picks.us) + "\nRival: " + n(d.picks.them) + "\n" +
       "Draft Lab estima " + Math.round(ev.win * 100) + "% de victoria (nota " + ev.us.grade + " vs " + ev.them.grade + ").\n" +
       "Busca en la web el meta actual y dime: 1) quién gana el draft y por qué, 2) plan por carriles y condición de victoria, 3) qué habrías cambiado en bans/picks, 4) qué ajustar para el siguiente set.";
@@ -543,21 +492,18 @@
       case "fmt": S.format = v; LS.set("format", v); render(); break;
       case "mode": S.mode = v; LS.set("mode", v); render(); break;
       case "allmaps": S.allMaps = !S.allMaps; LS.set("allMaps", S.allMaps); render(); break;
-      case "map": openSheet("setup", v); break;
-      case "start": {
-        S.draft = newDraft(S.sheetArg, v); S.undo = []; advance(S.draft); save(); S.view = "draft"; closeSheet(); render(); window.scrollTo(0, 0);
-        loadMapStats(S.draft.mapId); break;
-      }
+      case "map": S.draft = newDraft(v); S.undo = []; S.pf.cls = "all"; save(); S.view = "draft"; render(); window.scrollTo(0, 0); loadMapStats(v); break;
+      case "start": startPicks(v); break;
       case "resume": S.view = "draft"; render(); loadMapStats(S.draft.mapId); break;
       case "home": S.view = "home"; closeSheet(); render(); window.scrollTo(0, 0); break;
       case "undo": undo(); break;
-      case "reset": if (S.draft) { pushUndo(); const n = newDraft(S.draft.mapId, S.draft.firstPick); n.format = S.draft.format; n.phase = n.format === "bsc" ? "gbans" : "bans"; S.draft = n; advance(n); save(); render(); toast("Selección reiniciada"); } break;
-      case "again": if (S.draft) { const n = newDraft(S.draft.mapId, other(S.draft.firstPick)); n.format = S.draft.format; n.phase = "bans"; if (n.format === "bsc") n.globalBans = JSON.parse(JSON.stringify(S.draft.globalBans)); S.draft = n; S.undo = []; advance(n); save(); S.view = "draft"; closeSheet(); render(); toast("Nueva partida · cambia quién elige primero"); } break;
-      case "skip": skipPhase(); break;
-      case "slot": selectSlot(t.dataset.k, t.dataset.s, +t.dataset.i); break;
-      case "picker": openSheet("picker"); break;
+      case "reset": if (S.draft) { pushUndo(); const n = newDraft(S.draft.mapId); n.format = S.draft.format; S.draft = n; save(); render(); toast("Selección reiniciada"); } break;
+      case "again": if (S.draft) { const n = newDraft(S.draft.mapId); n.format = S.draft.format; n.bans = JSON.parse(JSON.stringify(S.draft.bans)); S.draft = n; S.undo = []; save(); S.view = "draft"; closeSheet(); render(); window.scrollTo(0, 0); toast("Nueva partida · mismos bloqueados"); } break;
+      case "clear": clearSlot(t.dataset.s, +t.dataset.i); break;
       case "pick": assign(v); break;
-      case "pcls": S.pf.cls = v; renderSheet(); break;
+      case "banmode": S.draft.banMode = !S.draft.banMode; save(); render(); break;
+      case "sort": S.gridSort = S.gridSort === "az" ? "prob" : "az"; LS.set("gridSort", S.gridSort); render(); break;
+      case "pcls": S.pf.cls = v; render(); break;
       case "summary": openSheet("summary"); break;
       case "close": closeSheet(); break;
       case "settings": openSheet("settings"); break;
@@ -591,7 +537,6 @@
   });
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && S.sheet) closeSheet();
-    if (ev.key === "Enter" && S.sheet === "picker") { const f = $("#pgrid .gi:not(.off)"); if (f) assign(f.dataset.v); }
     if ((ev.metaKey || ev.ctrlKey) && ev.key === "z" && S.view === "draft") { ev.preventDefault(); undo(); }
   });
 
@@ -601,7 +546,7 @@
     .then((j) => {
       META = j;
       E = new DraftEngine(META);
-      if (S.draft && (!E.maps[S.draft.mapId] || !S.draft.picks)) S.draft = null;
+      if (S.draft && (!E.maps[S.draft.mapId] || S.draft.v !== 2)) S.draft = null;
       S.view = "home";
       render();
       loadLive();
