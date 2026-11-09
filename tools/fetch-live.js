@@ -130,6 +130,23 @@ async function wikiImages(api, titles) {
     if (hit) out.es[m.id] = hit.title;
     await sleep(1200);
   }
+  // Respaldo: título de la página en español de seemeta (usa los nombres del juego)
+  for (const m of meta.mapas.filter((x) => !x.nombreEs && !out.es[x.id])) {
+    try {
+      const url = "https://seemeta.com/es/brawl-stars/tier-list?mode=" + m.modo + "&map=" + encodeURIComponent(m.nombre);
+      const r = await fetch(url, { headers: { "User-Agent": UA["User-Agent"], "Accept-Language": "es-ES" } });
+      if (r.ok) {
+        const html = await r.text();
+        const h1 = ((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [])[1] || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const title = ((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "").trim();
+        console.log("  [seemeta-es] " + m.nombre + " | h1: " + h1 + " | title: " + title);
+        const cand = (h1.match(/^(?:Tier list de |Mejores brawlers (?:para|en) )?(.+?)(?: en Brawl Stars| tier list| \(| ·| -|:|$)/i) || [])[1];
+        if (cand && norm(cand) !== norm(m.nombre) && cand.length < 40 && !/brawl stars|tier/i.test(cand)) out.esSeemeta = Object.assign(out.esSeemeta || {}, { [m.id]: cand.trim() });
+      } else console.log("  [seemeta-es] " + m.nombre + " → " + r.status);
+    } catch (e) { console.log("  [seemeta-es] " + m.nombre + " → " + e.message); }
+    await sleep(800);
+  }
+
   // Respaldo de imágenes: búsqueda en la wiki inglesa (p. ej. diferencias de mayúsculas)
   for (const m of meta.mapas.filter((x) => !out.maps.some((y) => y.mapId === x.id))) {
     const url = "https://brawlstars.fandom.com/api.php?action=query&format=json&generator=search&gsrnamespace=0&gsrlimit=5&gsrsearch=" +
