@@ -1,0 +1,14 @@
+name: probe-api
+on:
+  push:
+    branches: [probe-api]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for u in https://api.brawlapi.com/v1/brawlers https://api.brawlapi.com/v1/maps https://api.brawlify.com/v1/maps https://api.brawlapi.com/v1/gamemodes; do
+            code=$(curl -s -o /tmp/o.json -w '%{http_code}' -A "DraftLab/1.0 (fan tool)" "$u"); echo "$u -> $code $(head -c 300 /tmp/o.json)"; echo; done
+          id=$(curl -s -A "DraftLab/1.0" https://api.brawlapi.com/v1/maps | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);const m=(j.list||[]).find(x=>/gem fort/i.test(x.name));console.log(m?m.id:"");}catch(e){console.log("")}})')
+          echo "gemfort id=$id"
+          [ -n "$id" ] && curl -s -A "DraftLab/1.0" "https://api.brawlapi.com/v1/maps/$id" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const st=j.stats||[];console.log("keys",Object.keys(j).join(","),"stats",st.length,JSON.stringify(st.slice(0,3)),"lastActive",j.lastActive,"dataUpdated",j.dataUpdated)})'
