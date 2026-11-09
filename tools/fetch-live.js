@@ -120,6 +120,26 @@ async function wikiImages(api, titles) {
     });
     await sleep(2100);
   }
+  // Respaldo: buscar en la wiki española páginas cuyo enlace al inglés coincida exactamente con el mapa
+  for (const m of meta.mapas.filter((x) => !x.nombreEs && !out.es[x.id])) {
+    const url = "https://brawlstars.fandom.com/es/api.php?action=query&format=json&generator=search&gsrnamespace=0&gsrlimit=6&gsrsearch=" +
+      encodeURIComponent('"' + m.nombre + '"') + "&prop=langlinks&lllang=en&lllimit=max";
+    const j = await get(url, 1);
+    const pages = Object.values((j && j.query && j.query.pages) || {});
+    const hit = pages.find((p) => (p.langlinks || []).some((l) => norm(l["*"]) === norm(m.nombre)));
+    if (hit) out.es[m.id] = hit.title;
+    await sleep(1200);
+  }
+  // Respaldo de imágenes: búsqueda en la wiki inglesa (p. ej. diferencias de mayúsculas)
+  for (const m of meta.mapas.filter((x) => !out.maps.some((y) => y.mapId === x.id))) {
+    const url = "https://brawlstars.fandom.com/api.php?action=query&format=json&generator=search&gsrnamespace=0&gsrlimit=5&gsrsearch=" +
+      encodeURIComponent(m.nombre) + "&prop=pageimages&piprop=original";
+    const j = await get(url, 1);
+    const pages = Object.values((j && j.query && j.query.pages) || {});
+    const hit = pages.find((p) => norm(p.title) === norm(m.nombre) && p.original);
+    if (hit) { out.maps.push({ id: null, name: m.nombre, mapId: m.id, img: hit.original.source, fuente: "fandom-busqueda" }); pend = pend.filter((x) => x.id !== m.id); }
+    await sleep(1200);
+  }
   Object.entries(out.es).forEach(([k, v]) => console.log("  [es] " + k + " → " + v));
 
   // Conservar lo que ya teníamos si esta vez alguna fuente falla
