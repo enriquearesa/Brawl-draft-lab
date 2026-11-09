@@ -6,7 +6,7 @@
     get(k, d) { try { const v = localStorage.getItem("dl_" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem("dl_" + k, JSON.stringify(v)); } catch (e) {} },
   };
-  const API = "https://api.brawlify.com/v1";
+  const API = "https://api.brawlapi.com/v1";
   const CDN = "https://cdn.brawlify.com";
   const CLASS = {
     DD: { n: "Daño", c: "#ff5d6c" }, TK: { n: "Tanque", c: "#ffb02e" }, MK: { n: "Tirador", c: "#3fd0ff" },
@@ -26,7 +26,7 @@
     format: LS.get("format", "ranked"), mode: LS.get("mode", "all"), allMaps: LS.get("allMaps", false),
     pool: LS.get("pool", []), poolOnly: LS.get("poolOnly", false), style: LS.get("style", 0.5),
     history: LS.get("history", []), draft: LS.get("draft", null), undo: [],
-    live: { ok: null, maps: {}, nuevos: [] }, sheet: null, pf: { q: "", cls: "all" }, gridSort: LS.get("gridSort", "prob"),
+    live: { ok: null, maps: {}, nuevos: [] }, stats: null, sheet: null, pf: { q: "", cls: "all" }, gridSort: LS.get("gridSort", "prob"),
   };
 
   // ---------------- utilidades visuales ----------------
@@ -132,6 +132,16 @@
     if (S.draft) loadMapStats(S.draft.mapId);
   }
 
+  // Estadísticas reales de Competitivo (las genera GitHub Actions con tools/fetch-meta.js)
+  async function loadStats() {
+    try {
+      const r = await fetch("data/stats.json", { cache: "no-cache" });
+      if (r.ok) { S.stats = await r.json(); E.setStats(S.stats); }
+    } catch (e) {}
+    S.statsTried = true;
+    render();
+  }
+
   async function loadMapStats(mapId) {
     const m = E.maps[mapId];
     if (!m || S.live.t) return; // con data/live.json las estadísticas ya están cargadas
@@ -209,11 +219,19 @@
   }
   // Chuleta: todo lo que necesitas saber del mapa antes de que empiece la selección
   function cheatSheet(d) {
-    const st = (first, us, them) => Object.assign(est(d), { firstPick: first, picks: { us: us.concat([null, null, null]).slice(0, 3), them: them.concat([null, null, null]).slice(0, 3) } });
     const bans = E.recommendBans(est(d), "us", 3);
+    // Si aún no has marcado bloqueos, la chuleta da por hecho que bloqueas los recomendados
+    const marked = (d.bans.us || []).concat(d.bans.them || []).filter(Boolean).length > 0;
+    const st = (first, us, them, style) => {
+      const s = est(d);
+      if (!marked) s.bans = { us: bans.map((r) => r.b.id), them: [] };
+      if (style != null) s.style = style;
+      return Object.assign(s, { firstPick: first, picks: { us: us.concat([null, null, null]).slice(0, 3), them: them.concat([null, null, null]).slice(0, 3) } });
+    };
     const firsts = E.recommendPicks(st("us", [], []), "us", 3);
     const theirs = E.recommendPicks(st("them", [], []), "them", 6);
-    const resp = theirs.map((r) => ({ x: r.b, ans: E.recommendPicks(st("them", [], [r.b.id]), "us", 2).map((a) => a.b) }));
+    // Respuestas: más peso a contrarrestar lo que han cogido
+    const resp = theirs.map((r) => ({ x: r.b, ans: E.recommendPicks(st("them", [], [r.b.id], 1), "us", 2).map((a) => a.b) }));
     return { bans, firsts, resp };
   }
 
@@ -226,12 +244,22 @@
     if (!skipSheet && S.sheet) renderSheet();
   }
 
+  // Estado de las estadísticas de Competitivo (data/stats.json): "ok", "vieja" o "falta"
+  function statsState() {
+    if (!S.stats) return "falta";
+    return Date.now() - new Date(S.stats.t).getTime() > 3 * 86400e3 ? "vieja" : "ok";
+  }
+  function statsLine() {
+    const st = S.stats;
+    if (!st) return "Sin estadísticas de Competitivo: recomendaciones por tiers";
+    return "Estadísticas " + ago(st.t) + " · " + Math.round(st.batallas / 1000) + "k partidas";
+  }
   function metaPill() {
     const m = META.meta;
-    const dot = S.live.ok === true ? "on" : S.live.ok === false ? "off" : "";
-    const live = S.live.ok === true ? (S.live.t ? "Imágenes y datos " + ago(S.live.t) : "Brawlify en vivo") : S.live.ok === false ? "Sin datos en vivo" : "Conectando…";
+    const ss = statsState();
+    const dot = ss === "ok" ? "on" : ss === "falta" && S.stats === null && !S.statsTried ? "" : "off";
     return '<div class="metapill" data-act="changelog"><span class="dot ' + dot + '"></span><b>' + esc(m.temporada) + "</b>" +
-      "<span>· meta del " + esc(fmtDate(m.fechaDatos)) + " · comprobado " + esc(ago(m.comprobado)) + "</span><span>· " + live + "</span></div>";
+      "<span>· " + esc(statsLine()) + "</span></div>";
   }
 
   function renderHome() {
@@ -241,6 +269,8 @@
     let h = '<div class="top"><div class="logo">DRAFT LAB<small>BRAWL STARS · ASISTENTE</small></div><div class="sp"></div>' +
       '<button class="ib" data-act="history" title="Historial">📈</button><button class="ib" data-act="settings" title="Ajustes y pool">⚙️</button></div>';
     h += metaPill();
+    if (S.statsTried && statsState() !== "ok")
+      h += '<div class="banner warn">⚠️ ' + (S.stats ? "Las estadísticas de Competitivo tienen más de 3 días (" + esc(ago(S.stats.t)) + "): la actualización automática puede estar fallando." : "No se han podido cargar las estadísticas de Competitivo: las recomendaciones usan solo los tiers de meta.json.") + "</div>";
     (META.meta.avisos || []).slice(0, 1).forEach((a) => (h += '<div class="banner">📣 ' + esc(a) + "</div>"));
     if (S.live.nuevos.length)
       h += '<div class="banner new">🆕 Brawlers nuevos sin datos de meta: <b>' + S.live.nuevos.map((b) => esc(b.nombre)).join(", ") +
@@ -428,7 +458,7 @@
     else h += '<p class="small">Resultado guardado: <b>' + (d.result === "W" ? "victoria" : "derrota") + "</b>.</p>";
     h += '<div class="row" style="margin-top:14px"><a class="btn ghost" target="_blank" rel="noopener" href="https://claude.ai/new?q=' + encodeURIComponent(claudePrompt(d, ev)) + '">🤖 Analizar con Claude</a></div>';
     h += '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="again">Otra partida · mismo mapa</button><button class="btn ghost" data-act="home">Cambiar mapa</button></div>';
-    h += '<p class="small" style="margin-top:12px">' + esc(mapName(m)) + ": estimación heurística a partir del meta de " + esc(fmtDate(META.meta.fechaDatos)) + ". Úsala como guía, no como verdad absoluta.</p>";
+    h += '<p class="small" style="margin-top:12px">' + esc(mapName(m)) + ": estimación a partir de " + (S.stats ? "las estadísticas de Competitivo (" + esc(S.stats.periodo || fmtDate(S.stats.t)) + ", todos los rangos)" : "los tiers del meta del " + esc(fmtDate(META.meta.fechaDatos))) + " y de los counters medidos. Úsala como guía, no como verdad absoluta.</p>";
     return h;
   }
 
@@ -473,6 +503,8 @@
     const m = META.meta;
     let h = '<h2>🗞️ Estado del meta<span class="sp"></span><button class="ib" data-act="close">✕</button></h2>';
     h += '<p class="small"><b>' + esc(m.temporada) + "</b><br>" + esc(m.parche) + "<br>Datos del " + esc(fmtDate(m.fechaDatos)) + " · comprobado " + esc(ago(m.comprobado)) + " · v" + m.version + "<br>" + esc(m.proximoHito || "") + "</p>";
+    const st = S.stats;
+    h += '<p class="small">' + (st ? "📊 Estadísticas de Competitivo: <b>" + esc(st.periodo || "") + "</b> · " + st.batallas.toLocaleString("es-ES") + " partidas · " + Object.keys(st.mapas).length + " mapas con datos · " + st.counters.length + " counters medidos · actualizado " + esc(ago(st.t)) + '<br>Fuente: <a href="' + esc(st.fuente.url) + '" target="_blank" rel="noopener">' + esc(st.fuente.nombre) + "</a>. Incluye todos los rangos de Competitivo (no hay datos públicos solo de Mítico+)." : "⚠️ Sin estadísticas de Competitivo cargadas.") + "</p>";
     (m.avisos || []).forEach((a) => (h += '<div class="banner">📣 ' + esc(a) + "</div>"));
     h += '<div class="q" style="margin-top:14px">Cambios</div>';
     (META.changelog || []).slice().reverse().forEach((c) => {
@@ -549,6 +581,7 @@
       if (S.draft && (!E.maps[S.draft.mapId] || S.draft.v !== 2)) S.draft = null;
       S.view = "home";
       render();
+      loadStats();
       loadLive();
     })
     .catch((e) => { $("#app").innerHTML = '<div class="empty">No se pudo cargar data/meta.json (' + esc(e.message) + ")</div>"; });

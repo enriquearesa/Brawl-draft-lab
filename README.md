@@ -6,10 +6,11 @@ Asistente visual de pick & ban para Brawl Stars (Ranked y formato pro del BSC). 
 
 ## Cómo funciona
 
-- `data/meta.json`: el meta (brawlers, tiers, mapas de Ranked y BSC, top por mapa, reglas de draft). Se actualiza solo cada día con una tarea programada de Claude siguiendo [`UPDATE.md`](UPDATE.md).
-- `engine.js`: motor de recomendación local e instantáneo (fuerza en el mapa, counters, riesgo de counter, sinergia, pool personal).
+- `data/stats.json`: estadísticas reales de Competitivo (win rate y % de pick por brawler y mapa, counters y compañeros medidos). Lo genera GitHub Actions cada 6 h con `tools/fetch-meta.js` (fuente: seemeta, todos los rangos).
+- `data/meta.json`: lo que no se mide (clases, alcance, mapas, pools, reglas de draft) y el respaldo de tiers para mapas sin datos. Se revisa cada día con una tarea programada de Claude siguiendo [`UPDATE.md`](UPDATE.md); `tools/sync-meta.js` copia tiers y tops desde `stats.json`.
+- `engine.js`: motor de recomendación local e instantáneo (win rate medido en el mapa, % de pick, counters y compañeros medidos, riesgo de counter, sinergia, pool personal).
 - `app.js` + `index.html`: interfaz.
-- Imágenes de brawlers y mapas desde el CDN público de Brawlify; si la API de Brawlify responde, la app también usa sus win rates por mapa en vivo y detecta brawlers nuevos.
+- Imágenes de brawlers y mapas desde el CDN público de Brawlify y la wiki; la API pública de Brawlify (`api.brawlapi.com`) sirve para detectar brawlers nuevos.
 
 ## Comprobar el meta a mano
 

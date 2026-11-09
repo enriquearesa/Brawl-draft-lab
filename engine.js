@@ -3,7 +3,13 @@
 (function (root) {
   "use strict";
 
-  const TIER_V = { "S+": 1.0, S: 0.85, A: 0.7, B: 0.52, C: 0.36, D: 0.2, "?": 0.45 };
+  const TIER_V = { "S+": 1.0, S: 0.85, A: 0.7, B: 0.52, C: 0.36, D: 0.2, F: 0.1, "?": 0.45 };
+
+  // Estadísticas reales (data/stats.json): win rate → fuerza 0..1. 58 % ≈ 1, 51 % ≈ 0,5, 44 % ≈ 0.
+  const wrScore = (wr) => Math.max(0, Math.min(1, (wr - 44) / 14));
+  // Win rate "encogido" hacia el 50 % cuando hay pocas partidas (evita que 20 partidas al 70 % manden)
+  const shrink = (wr, picks, k) => (wr * (picks || 0) + 50 * k) / ((picks || 0) + k);
+  const popScore = (use) => Math.max(0, Math.min(1, (use || 0) / 6)); // 6 % de pick = muy popular
 
   // Ventaja unilateral de la clase fila sobre la clase columna (se antisimetriza en matchup)
   const CLS = {
@@ -42,13 +48,15 @@
 
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
+  // Pesos por posición en el orden de selección: al principio manda la fuerza en el mapa y no ser
+  // contrarrestable; según avanza el draft pesan más los counters a lo que ya ha elegido el rival y la sinergia.
   const POS_W = [
-    { map: 0.5, counter: 0.0, safe: 0.25, syn: 0.1, deny: 0.15 },
-    { map: 0.4, counter: 0.2, safe: 0.2, syn: 0.12, deny: 0.08 },
-    { map: 0.38, counter: 0.24, safe: 0.16, syn: 0.14, deny: 0.08 },
-    { map: 0.34, counter: 0.3, safe: 0.12, syn: 0.18, deny: 0.06 },
-    { map: 0.32, counter: 0.34, safe: 0.08, syn: 0.22, deny: 0.04 },
-    { map: 0.3, counter: 0.45, safe: 0.0, syn: 0.25, deny: 0.0 },
+    { map: 0.5, counter: 0.0, safe: 0.3, syn: 0.1, deny: 0.1 },
+    { map: 0.36, counter: 0.28, safe: 0.18, syn: 0.12, deny: 0.06 },
+    { map: 0.32, counter: 0.32, safe: 0.14, syn: 0.16, deny: 0.06 },
+    { map: 0.28, counter: 0.36, safe: 0.1, syn: 0.22, deny: 0.04 },
+    { map: 0.26, counter: 0.4, safe: 0.06, syn: 0.24, deny: 0.04 },
+    { map: 0.24, counter: 0.5, safe: 0.0, syn: 0.26, deny: 0.0 },
   ];
 
   function Engine(meta) {
@@ -64,8 +72,47 @@
       this.ov[b + ">" + a] = (this.ov[b + ">" + a] || 0) - v;
     });
     this.live = { stats: {} }; // stats[mapId][gameId] = {wr, use}
+    this.stats = null; // data/stats.json
+    this.dv = {}; // counters medidos: dv["a>b"] = puntos de win rate que a le quita a b
+    this.mates = {}; // compañeros medidos: mates["a+b"] = puntos por encima de lo esperado
     this._cache = {};
   }
+
+  Engine.prototype.setStats = function (st) {
+    if (!st || !st.brawlers) return;
+    this.stats = st;
+    this.dv = {};
+    (st.counters || []).forEach(([a, b, d]) => { this.dv[a + ">" + b] = Math.max(this.dv[a + ">" + b] || 0, d); });
+    this.mates = {};
+    (st.companeros || []).forEach(([a, b, d]) => { this.mates[a + "+" + b] = this.mates[b + "+" + a] = d; });
+    this._cache = {};
+  };
+
+  // Fuerza global medida (Competitivo, todos los mapas)
+  Engine.prototype.globalStr = function (b) {
+    const g = this.stats && this.stats.brawlers[b.id];
+    if (!g) return TIER_V[b.tier] != null ? TIER_V[b.tier] : 0.45;
+    return wrScore(shrink(g.adj || g.wr, g.picks || 3000, 3000));
+  };
+
+  Engine.prototype.mapStats = function (map) {
+    return (map && this.stats && this.stats.mapas[map.id]) || null;
+  };
+
+  // Datos medidos de un brawler en un mapa (si está en su top) o globales
+  Engine.prototype.statFor = function (b, map) {
+    const ms = this.mapStats(map);
+    const r = ms && ms.top.find((x) => x.id === b.id);
+    if (r) return { wr: r.wr, use: r.use, picks: r.picks, enMapa: true };
+    const g = this.stats && this.stats.brawlers[b.id];
+    return g ? { wr: g.wr, use: g.use, picks: g.picks, enMapa: false } : null;
+  };
+
+  // Probabilidad relativa de que alguien lo elija (0..1)
+  Engine.prototype.pop = function (b, map) {
+    const s = this.statFor(b, map);
+    return s ? popScore(s.use) : 0.3;
+  };
 
   Engine.prototype.add = function (b) {
     if (this.byId[b.id]) return;
@@ -83,7 +130,7 @@
     const key = a.id + ">" + b.id + "@" + (map ? map.id : "");
     if (key in this._cache) return this._cache[key];
     let v = ((CLS[a.clase] || {})[b.clase] || 0) - ((CLS[b.clase] || {})[a.clase] || 0);
-    v *= 0.6;
+    v *= this.stats ? 0.4 : 0.6;
     if (has(a, "T") && b.clase === "TK") v += 0.3;
     if (has(b, "T") && a.clase === "TK") v -= 0.3;
     if (has(a, "D") && (b.clase === "AS" || (b.clase === "TK" && has(b, "M")))) v += 0.25;
@@ -101,6 +148,8 @@
       }
     }
     v += this.ov[a.id + ">" + b.id] || 0;
+    // Counters medidos en Competitivo: 6 puntos de win rate ≈ +0,5
+    v += ((this.dv[a.id + ">" + b.id] || 0) - (this.dv[b.id + ">" + a.id] || 0)) / 12;
     v = clamp(v, -1, 1);
     this._cache[key] = v;
     return v;
@@ -113,13 +162,31 @@
   };
 
   Engine.prototype.mapFit = function (b, map) {
-    if (!map) return TIER_V[b.tier] || 0.45;
+    if (!map) return this.globalStr(b);
+    const ms = this.mapStats(map);
+    if (ms && ms.top.length) {
+      const key = "fit:" + b.id + "@" + map.id;
+      if (key in this._cache) return this._cache[key];
+      const g = this.globalStr(b);
+      const sc = (r) => wrScore(shrink(r.wr, r.picks, 400));
+      const r = ms.top.find((x) => x.id === b.id);
+      let v;
+      if (r) v = 0.75 * sc(r) + 0.25 * g;
+      else {
+        // Fuera del top 10 del mapa: su nivel global, sin superar al más flojo del top
+        const floor = Math.min.apply(null, ms.top.map((x) => 0.75 * sc(x) + 0.25 * this.globalStr(this.byId[x.id] || { id: x.id, tier: "?" })));
+        v = (floor - 0.04) * (0.7 + 0.3 * g);
+      }
+      v = clamp(v, 0, 1);
+      this._cache[key] = v;
+      return v;
+    }
     const modo = this.meta.modos[map.modo] || {};
     const idx = map.top.indexOf(b.id);
     let v;
     if (idx >= 0) v = 1.0 - 0.05 * idx;
     else {
-      v = (TIER_V[b.tier] || 0.45) * 0.6 + 0.12;
+      v = this.globalStr(b) * 0.6 + 0.12;
       if (map.arquetipo === "abierto") v += (b.alcance - 3) * 0.05;
       if (map.arquetipo === "cerrado") {
         if (b.clase === "AR") v += 0.08;
@@ -187,8 +254,9 @@
     const un = this.unavailable(st);
     return this.list
       .filter((b) => !un.has(b.id) && b.id !== exclude)
-      .map((b) => ({ b, f: this.mapFit(b, map) }))
-      .sort((x, y) => y.f - x.f)
+      .map((b) => ({ b, f: this.mapFit(b, map), p: this.pop(b, map) }))
+      .map((t) => Object.assign(t, { w: t.f * (0.55 + 0.45 * t.p) }))
+      .sort((x, y) => y.w - x.w)
       .slice(0, k || 10);
   };
 
@@ -221,12 +289,7 @@
       const parts = {};
       const reasons = [];
       parts.map = this.mapFit(c, map);
-      const idx = map.top.indexOf(c.id);
-      if (idx >= 0) reasons.push({ t: "#" + (idx + 1) + " en este mapa", k: "good" });
-      else if ((map.sugeridos || []).indexOf(c.id) >= 0) reasons.push({ t: "Recomendado para este mapa", k: "good" });
-      else if (c.tier === "S+" || c.tier === "S") reasons.push({ t: "Nivel " + c.tier + " del meta", k: "good" });
-      const lv = this.liveFor(c, map);
-      if (lv && lv.wr != null) reasons.push({ t: lv.wr.toFixed(1) + "% de victorias", k: "live" });
+      this.strengthReasons(c, map).forEach((r) => reasons.push(r));
 
       if (E.length) {
         let sum = 0, best = null, bestV = -2, worst = null, worstV = 2;
@@ -237,7 +300,8 @@
           if (m < worstV) { worstV = m; worst = e; }
         }
         parts.counter = (sum / E.length + 1) / 2;
-        if (bestV > 0.2) reasons.push({ t: "Contrarresta a " + best.nombre, k: "good" });
+        const dB = best ? this.dv[c.id + ">" + best.id] || 0 : 0;
+        if (bestV > 0.2) reasons.unshift({ t: "Contrarresta a " + best.nombre + (dB ? " (+" + dB.toFixed(1) + " pts)" : ""), k: "good" });
         if (worstV < -0.3) reasons.push({ t: worst.nombre + " le gana", k: "bad" });
       } else parts.counter = 0.5;
 
@@ -246,7 +310,7 @@
       if (fac > 0) {
         for (const t of threats) {
           if (t.b.id === c.id) continue;
-          const m = Math.max(0, this.matchup(t.b, c, map)) * t.f;
+          const m = Math.max(0, this.matchup(t.b, c, map)) * t.w;
           if (m > exp) { exp = m; expBy = t.b; }
         }
       }
@@ -258,6 +322,15 @@
       missing.forEach((nd) => { if (fills(c, nd)) { fill++; filled.push(NEED_LABEL[nd] || nd); } });
       let syn = 0.5 + 0.18 * fill;
       if (missing.length && !fill && slotsLeft === 1) syn -= 0.2;
+      // Parejas y tríos que en Competitivo rinden por encima de lo esperado
+      let mate = null, mateD = 0;
+      O.forEach((o) => { const d = this.mates[c.id + "+" + o.id] || 0; syn += d / 25; if (d > mateD) { mateD = d; mate = o; } });
+      const ms = this.mapStats(map);
+      if (ms && O.length >= 2) {
+        const trio = ms.trios.find((t) => t.b.indexOf(c.id) >= 0 && O.filter((o) => t.b.indexOf(o.id) >= 0).length >= 2);
+        if (trio) { syn += 0.2; reasons.push({ t: "Trío top del mapa (" + trio.wr.toFixed(0) + "%)", k: "good" }); }
+      }
+      if (mate && mateD >= 3) reasons.push({ t: "Combina con " + mate.nombre, k: "good" });
       const same = O.filter((o) => o.clase === c.clase).length;
       syn -= 0.15 * same;
       if (c.clase === "AS" && same) syn -= 0.1;
@@ -296,15 +369,13 @@
     for (const c of this.list) {
       if (un.has(c.id)) continue;
       const f = this.mapFit(c, map);
+      const p = this.pop(c, map);
       let mt = 0;
       top.forEach((t) => { if (t.id !== c.id) mt += this.matchup(c, t, map); });
       mt = (mt / Math.max(1, top.length) + 1) / 2;
-      let score = 0.68 * f + 0.32 * mt;
-      const reasons = [];
-      const idx = map.top.indexOf(c.id);
-      if (idx >= 0) reasons.push({ t: "#" + (idx + 1) + " en este mapa", k: "good" });
-      else if ((map.sugeridos || []).indexOf(c.id) >= 0) reasons.push({ t: "Recomendado para este mapa", k: "good" });
-      else if (c.tier === "S+") reasons.push({ t: "Nivel S+ del meta", k: "good" });
+      // Banear rinde más si es fuerte Y el rival probablemente lo elija
+      let score = this.stats ? 0.6 * f + 0.18 * p + 0.22 * mt : 0.68 * f + 0.32 * mt;
+      const reasons = this.strengthReasons(c, map);
       if (mt > 0.56) reasons.push({ t: "Castiga al meta del mapa", k: "info" });
       if (myPool.length) {
         let s = 0;
@@ -317,6 +388,27 @@
     }
     out.sort((a, b) => b.score - a.score);
     return n ? out.slice(0, n) : out;
+  };
+
+  // Motivos de fuerza para la tarjeta: datos medidos si los hay, si no el ranking de meta.json
+  Engine.prototype.strengthReasons = function (c, map) {
+    const out = [];
+    const ms = this.mapStats(map);
+    const s = this.statFor(c, map);
+    if (s) {
+      const idx = ms ? ms.top.findIndex((x) => x.id === c.id) : -1;
+      if (idx >= 0 && idx < 5) out.push({ t: "#" + (idx + 1) + " en este mapa", k: "good" });
+      out.push({ t: s.wr.toFixed(1) + "% victorias" + (s.enMapa ? "" : " (global)"), k: s.wr >= 53 ? "live" : s.wr < 48 ? "bad" : "info" });
+      if (s.use >= 2.5) out.push({ t: "Muy elegido · " + s.use.toFixed(1) + "% pick", k: "info" });
+      return out;
+    }
+    const idx = map ? map.top.indexOf(c.id) : -1;
+    if (idx >= 0) out.push({ t: "#" + (idx + 1) + " en este mapa", k: "good" });
+    else if (map && (map.sugeridos || []).indexOf(c.id) >= 0) out.push({ t: "Recomendado para este mapa", k: "good" });
+    else if (c.tier === "S+" || c.tier === "S") out.push({ t: "Nivel " + c.tier + " del meta", k: "good" });
+    const lv = this.liveFor(c, map);
+    if (lv && lv.wr != null) out.push({ t: lv.wr.toFixed(1) + "% de victorias", k: "live" });
+    return out;
   };
 
   function radarOf(team) {

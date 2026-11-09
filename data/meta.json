@@ -1,13 +1,17 @@
 {
   "meta": {
-    "version": 2,
+    "version": 3,
     "fechaDatos": "2026-11-09",
-    "comprobado": "2026-11-09T13:30:00+01:00",
+    "comprobado": "2026-11-09T17:30:00+01:00",
     "revisionCompleta": "2026-11-09",
     "parche": "Release Notes noviembre 2026 (3 nov)",
     "temporada": "Temporada 56 · Brawl Vice (desde 5 nov 2026)",
     "proximoHito": "World Finals BSC · Tokio · 20-22 nov 2026",
     "fuentes": [
+      {
+        "nombre": "seemeta · Competitivo: tier list, mapas, counters y compañeros (automático)",
+        "url": "https://seemeta.com/en/brawl-stars/tier-list"
+      },
       {
         "nombre": "seemeta · tier list y mapas Ranked (3-8 nov 2026)",
         "url": "https://seemeta.com/en/brawl-stars/maps"
@@ -29,16 +33,13 @@
         "url": "https://trophycoach.com/brawl-stars/guides/brawl-stars-competitive-map-pool-2026"
       },
       {
-        "nombre": "Pocket Tactics · Brawlers por clase",
-        "url": "https://www.pockettactics.com/brawl-stars/brawlers"
-      },
-      {
         "nombre": "Brawlify CDN (imágenes)",
         "url": "https://github.com/Brawlify/CDN"
       }
     ],
     "avisos": [
-      "18 mapas nuevos de la comunidad en la rotación competitiva desde el 3 nov. Aún sin estadísticas: las recomendaciones usan su diseño y sugerencias iniciales.",
+      "Estadísticas de Competitivo de seemeta (todos los rangos, 3-9 nov 2026; se actualizan solas cada 6 h). No hay datos públicos solo de Mítico+.",
+      "18 mapas nuevos de la comunidad aún sin estadísticas: las recomendaciones usan su diseño y sugerencias iniciales.",
       "Thunder Frogs anunciado para noviembre (aún sin datos). Rey y Ruby llegan en diciembre."
     ]
   },
@@ -49,7 +50,7 @@
       "cambios": [
         "Nerfs: Shade, Gus, Amber, Max, Wendy, Ash, Brock, Rico, Colette, Pierce, Maisie, Nori",
         "Buffs: Draco, Shelly, Ziggy, Melodie, Chuck, Hank, Darryl, Buster, Angelo, R-T",
-        "Mr. P domina casi todos los mapas tras su rework"
+        "Mr. P lidera el win rate de Competitivo tras la mejora de su Buffie (Service Bell); no fue un rework"
       ]
     },
     {
@@ -124,8 +125,8 @@
       "gameModeId": 48000000,
       "mejores": [
         "mrp",
-        "ollie",
-        "bo"
+        "bolt",
+        "ollie"
       ],
       "necesita": [
         "control",
@@ -144,9 +145,9 @@
       "color": "#6fa8ff",
       "gameModeId": 48000005,
       "mejores": [
-        "hank",
-        "mrp",
-        "elprimo"
+        "jacky",
+        "elprimo",
+        "ash"
       ],
       "necesita": [
         "rompeMuros",
@@ -166,9 +167,9 @@
       "color": "#ff5a5a",
       "gameModeId": 48000017,
       "mejores": [
-        "hank",
         "chuck",
-        "amber"
+        "hank",
+        "juju"
       ],
       "necesita": [
         "zona",
@@ -189,7 +190,7 @@
       "mejores": [
         "bibi",
         "nori",
-        "mrp"
+        "melodie"
       ],
       "necesita": [
         "dps",
@@ -208,8 +209,8 @@
       "gameModeId": 48000020,
       "mejores": [
         "mrp",
-        "doug",
-        "angelo"
+        "angelo",
+        "pearl"
       ],
       "necesita": [
         "rango",
@@ -228,7 +229,7 @@
       "gameModeId": 48000003,
       "mejores": [
         "mrp",
-        "sprout",
+        "bolt",
         "bo"
       ],
       "necesita": [
@@ -264,27 +265,27 @@
     {"id": "spike", "nombre": "Spike", "clase": "DD", "gameId": 16000005, "alcance": 3, "tags": ["Z", "C", "T"], "tier": "A"},
     {"id": "surge", "nombre": "Surge", "clase": "DD", "gameId": 16000038, "alcance": 3, "tags": ["M"], "tier": "A"},
     {"id": "tara", "nombre": "Tara", "clase": "DD", "gameId": 16000017, "alcance": 3, "tags": ["C", "P"], "tier": "A"},
-    {"id": "vince", "nombre": "Vince", "clase": "DD", "gameId": null, "alcance": 3, "tags": [], "tier": "B"},
+    {"id": "vince", "nombre": "Vince", "clase": "DD", "gameId": 16000110, "alcance": 3, "tags": [], "tier": "B"},
     {"id": "ash", "nombre": "Ash", "clase": "TK", "gameId": 16000051, "alcance": 2, "tags": ["S"], "tier": "S"},
     {"id": "bibi", "nombre": "Bibi", "clase": "TK", "gameId": 16000026, "alcance": 2, "tags": ["D", "C", "S"], "tier": "S+"},
-    {"id": "bolt", "nombre": "Bolt", "clase": "TK", "gameId": null, "alcance": 2, "tags": ["S"], "tier": "S"},
+    {"id": "bolt", "nombre": "Bolt", "clase": "TK", "gameId": 16000106, "alcance": 2, "tags": ["S"], "tier": "S"},
     {"id": "bull", "nombre": "Bull", "clase": "TK", "gameId": 16000002, "alcance": 2, "tags": ["T", "D", "W", "M", "B"], "tier": "B"},
     {"id": "buster", "nombre": "Buster", "clase": "TK", "gameId": 16000062, "alcance": 2, "tags": ["S"], "tier": "B"},
-    {"id": "damian", "nombre": "Damian", "clase": "TK", "gameId": null, "alcance": 2, "tags": ["S"], "tier": "A"},
-    {"id": "darryl", "nombre": "Darryl", "clase": "TK", "gameId": 16000018, "alcance": 2, "tags": ["M", "B", "T"], "tier": "B"},
+    {"id": "damian", "nombre": "Damian", "clase": "TK", "gameId": 16000104, "alcance": 2, "tags": ["S"], "tier": "B"},
+    {"id": "darryl", "nombre": "Darryl", "clase": "TK", "gameId": 16000018, "alcance": 2, "tags": ["M", "B", "T"], "tier": "C"},
     {"id": "draco", "nombre": "Draco", "clase": "TK", "gameId": 16000080, "alcance": 2, "tags": ["S", "C"], "tier": "C"},
-    {"id": "elprimo", "nombre": "El Primo", "clase": "TK", "gameId": 16000010, "alcance": 1, "tags": ["W", "M", "C"], "tier": "A"},
+    {"id": "elprimo", "nombre": "El Primo", "clase": "TK", "gameId": 16000010, "alcance": 1, "tags": ["W", "M", "C"], "tier": "S"},
     {"id": "frank", "nombre": "Frank", "clase": "TK", "gameId": 16000020, "alcance": 2, "tags": ["W", "C"], "tier": "C"},
     {"id": "hank", "nombre": "Hank", "clase": "TK", "gameId": 16000069, "alcance": 2, "tags": ["B", "Z"], "tier": "S+"},
-    {"id": "jacky", "nombre": "Jacky", "clase": "TK", "gameId": 16000034, "alcance": 1, "tags": ["W", "C"], "tier": "B"},
-    {"id": "meg", "nombre": "Meg", "clase": "TK", "gameId": 16000052, "alcance": 3, "tags": ["S"], "tier": "C"},
+    {"id": "jacky", "nombre": "Jacky", "clase": "TK", "gameId": 16000034, "alcance": 1, "tags": ["W", "C"], "tier": "A"},
+    {"id": "meg", "nombre": "Meg", "clase": "TK", "gameId": 16000052, "alcance": 3, "tags": ["S"], "tier": "D"},
     {"id": "ollie", "nombre": "Ollie", "clase": "TK", "gameId": 16000090, "alcance": 2, "tags": ["C"], "tier": "A"},
     {"id": "rosa", "nombre": "Rosa", "clase": "TK", "gameId": 16000024, "alcance": 1, "tags": ["S"], "tier": "A"},
     {"id": "trunk", "nombre": "Trunk", "clase": "TK", "gameId": 16000096, "alcance": 2, "tags": ["S"], "tier": "S"},
-    {"id": "angelo", "nombre": "Angelo", "clase": "MK", "gameId": 16000079, "alcance": 5, "tags": ["Z", "M"], "tier": "S+"},
+    {"id": "angelo", "nombre": "Angelo", "clase": "MK", "gameId": 16000079, "alcance": 5, "tags": ["Z", "M"], "tier": "S"},
     {"id": "bea", "nombre": "Bea", "clase": "MK", "gameId": 16000029, "alcance": 5, "tags": ["C"], "tier": "C"},
     {"id": "belle", "nombre": "Belle", "clase": "MK", "gameId": 16000046, "alcance": 5, "tags": [], "tier": "C"},
-    {"id": "bonnie", "nombre": "Bonnie", "clase": "MK", "gameId": 16000058, "alcance": 5, "tags": ["M"], "tier": "C"},
+    {"id": "bonnie", "nombre": "Bonnie", "clase": "MK", "gameId": 16000058, "alcance": 5, "tags": ["M"], "tier": "B"},
     {"id": "brock", "nombre": "Brock", "clase": "MK", "gameId": 16000003, "alcance": 5, "tags": ["W"], "tier": "A"},
     {"id": "janet", "nombre": "Janet", "clase": "MK", "gameId": 16000057, "alcance": 4, "tags": ["M"], "tier": "C"},
     {"id": "maisie", "nombre": "Maisie", "clase": "MK", "gameId": 16000068, "alcance": 4, "tags": ["C"], "tier": "C"},
@@ -292,24 +293,24 @@
     {"id": "nani", "nombre": "Nani", "clase": "MK", "gameId": 16000036, "alcance": 5, "tags": ["B"], "tier": "C"},
     {"id": "pierce", "nombre": "Pierce", "clase": "MK", "gameId": 16000099, "alcance": 5, "tags": [], "tier": "D"},
     {"id": "piper", "nombre": "Piper", "clase": "MK", "gameId": 16000015, "alcance": 5, "tags": ["B"], "tier": "B"},
-    {"id": "barley", "nombre": "Barley", "clase": "AR", "gameId": 16000006, "alcance": 4, "tags": ["Z"], "tier": "B"},
+    {"id": "barley", "nombre": "Barley", "clase": "AR", "gameId": 16000006, "alcance": 4, "tags": ["Z"], "tier": "A"},
     {"id": "dynamike", "nombre": "Dynamike", "clase": "AR", "gameId": 16000009, "alcance": 4, "tags": ["W", "C"], "tier": "D"},
     {"id": "grom", "nombre": "Grom", "clase": "AR", "gameId": 16000048, "alcance": 5, "tags": ["W"], "tier": "B"},
-    {"id": "juju", "nombre": "Juju", "clase": "AR", "gameId": 16000087, "alcance": 4, "tags": ["Z"], "tier": "S"},
+    {"id": "juju", "nombre": "Juju", "clase": "AR", "gameId": 16000087, "alcance": 4, "tags": ["Z"], "tier": "S+"},
     {"id": "larrylawrie", "nombre": "Larry & Lawrie", "clase": "AR", "gameId": 16000077, "alcance": 4, "tags": ["Z"], "tier": "A"},
     {"id": "penny", "nombre": "Penny", "clase": "AR", "gameId": 16000019, "alcance": 4, "tags": ["Z"], "tier": "C"},
-    {"id": "sprout", "nombre": "Sprout", "clase": "AR", "gameId": 16000037, "alcance": 4, "tags": ["Z"], "tier": "S"},
+    {"id": "sprout", "nombre": "Sprout", "clase": "AR", "gameId": 16000037, "alcance": 4, "tags": ["Z"], "tier": "A"},
     {"id": "tick", "nombre": "Tick", "clase": "AR", "gameId": 16000022, "alcance": 4, "tags": ["Z"], "tier": "C"},
     {"id": "amber", "nombre": "Amber", "clase": "CT", "gameId": 16000040, "alcance": 3, "tags": ["Z"], "tier": "S"},
     {"id": "bo", "nombre": "Bo", "clase": "CT", "gameId": 16000014, "alcance": 4, "tags": ["Z"], "tier": "S+"},
     {"id": "charlie", "nombre": "Charlie", "clase": "CT", "gameId": 16000074, "alcance": 3, "tags": ["C"], "tier": "D"},
-    {"id": "cosmo", "nombre": "Cosmo", "clase": "CT", "gameId": null, "alcance": 4, "tags": ["Z"], "tier": "C"},
+    {"id": "cosmo", "nombre": "Cosmo", "clase": "CT", "gameId": 16000109, "alcance": 4, "tags": ["Z"], "tier": "C"},
     {"id": "emz", "nombre": "Emz", "clase": "CT", "gameId": 16000030, "alcance": 3, "tags": ["D", "T", "Z", "C"], "tier": "S"},
     {"id": "finx", "nombre": "Finx", "clase": "CT", "gameId": 16000092, "alcance": 3, "tags": ["Z"], "tier": "B"},
     {"id": "gale", "nombre": "Gale", "clase": "CT", "gameId": 16000035, "alcance": 3, "tags": ["D", "C"], "tier": "B"},
-    {"id": "gene", "nombre": "Gene", "clase": "CT", "gameId": 16000021, "alcance": 3, "tags": ["C"], "tier": "D"},
-    {"id": "griff", "nombre": "Griff", "clase": "CT", "gameId": 16000050, "alcance": 3, "tags": ["B"], "tier": "B"},
-    {"id": "jessie", "nombre": "Jessie", "clase": "CT", "gameId": 16000007, "alcance": 4, "tags": ["Z"], "tier": "A"},
+    {"id": "gene", "nombre": "Gene", "clase": "CT", "gameId": 16000021, "alcance": 3, "tags": ["C"], "tier": "C"},
+    {"id": "griff", "nombre": "Griff", "clase": "CT", "gameId": 16000050, "alcance": 3, "tags": ["B"], "tier": "C"},
+    {"id": "jessie", "nombre": "Jessie", "clase": "CT", "gameId": 16000007, "alcance": 4, "tags": ["Z"], "tier": "B"},
     {"id": "lou", "nombre": "Lou", "clase": "CT", "gameId": 16000041, "alcance": 4, "tags": ["C", "Z"], "tier": "A"},
     {"id": "meeple", "nombre": "Meeple", "clase": "CT", "gameId": 16000089, "alcance": 3, "tags": ["Z"], "tier": "C"},
     {"id": "mrp", "nombre": "Mr. P", "clase": "CT", "gameId": 16000031, "alcance": 4, "tags": ["Z"], "tier": "S+"},
@@ -333,70 +334,70 @@
     {"id": "melodie", "nombre": "Melodie", "clase": "AS", "gameId": 16000078, "alcance": 3, "tags": ["M"], "tier": "S"},
     {"id": "mico", "nombre": "Mico", "clase": "AS", "gameId": 16000075, "alcance": 2, "tags": ["M"], "tier": "B"},
     {"id": "mortis", "nombre": "Mortis", "clase": "AS", "gameId": 16000011, "alcance": 1, "tags": ["M"], "tier": "B"},
-    {"id": "nori", "nombre": "Nori", "clase": "AS", "gameId": null, "alcance": 2, "tags": ["M"], "tier": "A"},
+    {"id": "nori", "nombre": "Nori", "clase": "AS", "gameId": 16000107, "alcance": 2, "tags": ["M"], "tier": "A"},
     {"id": "sam", "nombre": "Sam", "clase": "AS", "gameId": 16000060, "alcance": 2, "tags": ["M"], "tier": "A"},
     {"id": "shade", "nombre": "Shade", "clase": "AS", "gameId": 16000086, "alcance": 2, "tags": ["M"], "tier": "D"},
-    {"id": "starrnova", "nombre": "Starr Nova", "clase": "AS", "gameId": null, "alcance": 2, "tags": ["M"], "tier": "B"},
+    {"id": "starrnova", "nombre": "Starr Nova", "clase": "AS", "gameId": 16000105, "alcance": 2, "tags": ["M"], "tier": "B"},
     {"id": "stu", "nombre": "Stu", "clase": "AS", "gameId": 16000045, "alcance": 2, "tags": ["M"], "tier": "B"},
     {"id": "berry", "nombre": "Berry", "clase": "SP", "gameId": 16000082, "alcance": 3, "tags": ["H"], "tier": "D"},
     {"id": "byron", "nombre": "Byron", "clase": "SP", "gameId": 16000042, "alcance": 5, "tags": ["H"], "tier": "D"},
     {"id": "doug", "nombre": "Doug", "clase": "SP", "gameId": 16000071, "alcance": 2, "tags": ["H"], "tier": "A"},
-    {"id": "glowy", "nombre": "Glowy", "clase": "SP", "gameId": 16000101, "alcance": 3, "tags": ["H"], "tier": "C"},
+    {"id": "glowy", "nombre": "Glowy", "clase": "SP", "gameId": 16000101, "alcance": 3, "tags": ["H"], "tier": "B"},
     {"id": "gray", "nombre": "Gray", "clase": "SP", "gameId": 16000064, "alcance": 4, "tags": ["M"], "tier": "A"},
     {"id": "gus", "nombre": "Gus", "clase": "SP", "gameId": 16000061, "alcance": 4, "tags": ["H", "S"], "tier": "C"},
-    {"id": "jaeyong", "nombre": "Jae-Yong", "clase": "SP", "gameId": 16000093, "alcance": 3, "tags": ["H"], "tier": "C"},
+    {"id": "jaeyong", "nombre": "Jae-Yong", "clase": "SP", "gameId": 16000093, "alcance": 3, "tags": ["H"], "tier": "D"},
     {"id": "kit", "nombre": "Kit", "clase": "SP", "gameId": 16000076, "alcance": 3, "tags": ["H"], "tier": "D"},
     {"id": "max", "nombre": "Max", "clase": "SP", "gameId": 16000032, "alcance": 3, "tags": ["M"], "tier": "D"},
     {"id": "pam", "nombre": "Pam", "clase": "SP", "gameId": 16000016, "alcance": 3, "tags": ["H", "Z"], "tier": "D"},
-    {"id": "poco", "nombre": "Poco", "clase": "SP", "gameId": 16000013, "alcance": 3, "tags": ["H"], "tier": "D"},
+    {"id": "poco", "nombre": "Poco", "clase": "SP", "gameId": 16000013, "alcance": 3, "tags": ["H"], "tier": "C"},
     {"id": "ruffs", "nombre": "Ruffs", "clase": "SP", "gameId": 16000044, "alcance": 4, "tags": [], "tier": "D"},
-    {"id": "wendy", "nombre": "Wendy", "clase": "SP", "gameId": null, "alcance": 3, "tags": [], "tier": "C"}
+    {"id": "wendy", "nombre": "Wendy", "clase": "SP", "gameId": 16000108, "alcance": 3, "tags": [], "tier": "C"}
   ],
   "mapas": [
-    {"id": "undermine", "nombre": "Undermine", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["mrp", "bo", "amber", "damian", "bolt"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "doubleswoosh", "nombre": "Double Swoosh", "nombreEs": "Brrum brrum", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "bo", "bolt", "tara", "amber"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "gemfort", "nombre": "Gem Fort", "nombreEs": "Fuerte de Gemas", "modo": "gemGrab", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "tara", "edgar", "bo", "surge"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "hardrockmine", "nombre": "Hard Rock Mine", "nombreEs": "Mina rocosa", "modo": "gemGrab", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["mrp", "rosa", "ash", "bo", "rico"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "undermine", "nombre": "Undermine", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["mrp", "bo", "bolt", "tara", "amber"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "doubleswoosh", "nombre": "Double Swoosh", "nombreEs": "Brrum brrum", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "bo", "tara", "bolt", "chester"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "gemfort", "nombre": "Gem Fort", "nombreEs": "Fuerte de Gemas", "modo": "gemGrab", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "tara", "edgar", "bo", "surge"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "hardrockmine", "nombre": "Hard Rock Mine", "nombreEs": "Mina rocosa", "modo": "gemGrab", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["mrp", "rosa", "bolt", "bo", "ash"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
     {"id": "crystalarcade", "nombre": "Crystal Arcade", "nombreEs": "Arcade de cristal", "modo": "gemGrab", "pools": ["bsc"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null},
     {"id": "emotionaldetachment", "nombre": "Emotional Detachment", "nombreEs": "Desapego emocional", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bo", "angelo"], "nuevo": true},
     {"id": "dontleafme", "nombre": "Don't Leaf Me", "nombreEs": "Sin vuelta de hoja", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bo", "angelo"], "nuevo": true},
     {"id": "ravenousrapids", "nombre": "Ravenous Rapids", "nombreEs": "Rápidos radicales", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bo", "angelo"], "nuevo": true},
-    {"id": "centerstage", "nombre": "Center Stage", "nombreEs": "Palco Central", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": ["mrp", "emz", "amber", "lou", "ash"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "tripledribble", "nombre": "Triple Dribble", "nombreEs": "Triple drible", "modo": "brawlBall", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["elprimo", "lou", "larrylawrie", "bibi", "hank"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "pinballdreams", "nombre": "Pinball Dreams", "modo": "brawlBall", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": false, "top": ["ash", "bibi", "hank", "lou", "larrylawrie"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "sneakyfields", "nombre": "Sneaky Fields", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": ["emz", "ash", "rico", "bibi", "spike"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "centerstage", "nombre": "Center Stage", "nombreEs": "Palco Central", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": ["mrp", "emz", "ash", "amber", "lou"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "tripledribble", "nombre": "Triple Dribble", "nombreEs": "Triple drible", "modo": "brawlBall", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["elprimo", "lou", "bibi", "larrylawrie", "melodie"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "pinballdreams", "nombre": "Pinball Dreams", "modo": "brawlBall", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": false, "top": ["bibi", "ash", "hank", "elprimo", "larrylawrie"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "sneakyfields", "nombre": "Sneaky Fields", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": ["emz", "ash", "jacky", "bibi", "shelly"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
     {"id": "pinholepunt", "nombre": "Pinhole Punt", "nombreEs": "Cancha Peleona", "modo": "brawlBall", "pools": ["bsc"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null},
     {"id": "humannature", "nombre": "Human Nature", "nombreEs": "Naturaleza humana", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["draco", "frank", "poco"], "nuevo": true},
     {"id": "passingthrough", "nombre": "Passing Through", "nombreEs": "Tiro al travesaño", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bibi", "byron"], "nuevo": true},
     {"id": "fronttackle", "nombre": "Front Tackle", "nombreEs": "Segada salvaje", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["frank", "cosmo", "byron"], "nuevo": true},
-    {"id": "ringoffire", "nombre": "Ring of Fire", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["amber", "juju", "mrp", "bo", "gale"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "duelingbeetles", "nombre": "Dueling Beetles", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["amber", "chuck", "bibi", "bo", "mrp"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "parallelplays", "nombre": "Parallel Plays", "nombreEs": "Estrategias Paralelas", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["lou", "juju", "chuck", "hank", "bibi"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "openbusiness", "nombre": "Open Business", "nombreEs": "Campo abierto", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "amber", "chuck", "hank", "emz"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "ringoffire", "nombre": "Ring of Fire", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["amber", "mrp", "juju", "bo", "gale"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "duelingbeetles", "nombre": "Dueling Beetles", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["amber", "chuck", "bibi", "mrp", "bo"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "parallelplays", "nombre": "Parallel Plays", "nombreEs": "Estrategias Paralelas", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["lou", "chuck", "juju", "bibi", "hank"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "openbusiness", "nombre": "Open Business", "nombreEs": "Campo abierto", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "amber", "hank", "chuck", "barley"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
     {"id": "framework", "nombre": "Framework", "nombreEs": "Estructura envidiable", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["amber", "tick", "squeak"], "nuevo": true},
     {"id": "sectioned", "nombre": "Sectioned", "nombreEs": "Por secciones", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["bo", "amber", "damian"], "nuevo": true},
     {"id": "sunkenharbor", "nombre": "Sunken Harbor", "nombreEs": "Puerto sumergido", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["bo", "amber", "piper"], "nuevo": true},
-    {"id": "bridgetoofar", "nombre": "Bridge Too Far", "nombreEs": "Aguas Turbulentas", "modo": "heist", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["colt", "8bit", "angelo", "nori", "melodie"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "kaboomcanyon", "nombre": "Kaboom Canyon", "modo": "heist", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["nori", "melodie", "amber", "mrp", "colette"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "safezone", "nombre": "Safe Zone", "modo": "heist", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["chuck", "mrp", "nori", "melodie", "gale"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "hotpotato", "nombre": "Hot Potato", "nombreEs": "Patata Caliente", "modo": "heist", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": ["bibi", "melodie", "nita", "nori", "barley"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "bridgetoofar", "nombre": "Bridge Too Far", "nombreEs": "Aguas Turbulentas", "modo": "heist", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["colt", "nori", "8bit", "angelo", "mrp"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "kaboomcanyon", "nombre": "Kaboom Canyon", "modo": "heist", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["nori", "melodie", "amber", "mrp", "colette"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "safezone", "nombre": "Safe Zone", "modo": "heist", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "melodie", "nori", "chuck", "colette"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "hotpotato", "nombre": "Hot Potato", "nombreEs": "Patata Caliente", "modo": "heist", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": ["bibi", "melodie", "nori", "nita", "barley"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
     {"id": "pitstop", "nombre": "Pit Stop", "modo": "heist", "pools": ["bsc"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null},
     {"id": "printstream", "nombre": "Printstream", "nombreEs": "Corriente de gemas", "modo": "heist", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["shade", "angelo", "bo"], "nuevo": true},
     {"id": "firesacross", "nombre": "Fires Across", "nombreEs": "Fuego cruzado", "modo": "heist", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["piper", "bo", "crow"], "nuevo": true},
     {"id": "onthelookout", "nombre": "On the Lookout", "nombreEs": "Alerta eterna", "modo": "heist", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["edgar", "bo", "tick"], "nuevo": true},
-    {"id": "goldarmgulch", "nombre": "Goldarm Gulch", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["pearl", "mrp", "edgar", "brock", "doug"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "newhorizons", "nombre": "New Horizons", "nombreEs": "Nuevos Horizontes", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": false, "top": ["mrp", "sprout", "brock", "pearl", "bolt"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "flowingsprings", "nombre": "Flowing Springs", "modo": "knockout", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "angelo", "najia", "brock", "tick"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "outintheopen", "nombre": "Out in the Open", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "angelo", "brock", "pearl", "rico"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "flaringphoenix", "nombre": "Flaring Phoenix", "modo": "knockout", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": ["mrp", "edgar", "pearl", "brock", "doug"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "bellesrock", "nombre": "Belle's Rock", "modo": "knockout", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "grom", "brock", "sprout", "edgar"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "goldarmgulch", "nombre": "Goldarm Gulch", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["edgar", "pearl", "mrp", "brock", "doug"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "newhorizons", "nombre": "New Horizons", "nombreEs": "Nuevos Horizontes", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": false, "top": ["mrp", "sprout", "bolt", "brock", "edgar"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "flowingsprings", "nombre": "Flowing Springs", "modo": "knockout", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "angelo", "tick", "brock", "najia"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "outintheopen", "nombre": "Out in the Open", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "angelo", "brock", "pearl", "rico"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "flaringphoenix", "nombre": "Flaring Phoenix", "modo": "knockout", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": ["edgar", "mrp", "pearl", "brock", "doug"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "bellesrock", "nombre": "Belle's Rock", "modo": "knockout", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "grom", "brock", "edgar", "sprout"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
     {"id": "soundwaves", "nombre": "Sound Waves", "nombreEs": "Ondas sónicas", "modo": "knockout", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["angelo", "belle", "wendy"], "nuevo": true},
     {"id": "dryrun", "nombre": "Dry Run", "nombreEs": "Ensayo general", "modo": "knockout", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["piper", "shade", "wendy"], "nuevo": true},
     {"id": "pincermovement", "nombre": "Pincer Movement", "nombreEs": "Movimiento de pinza", "modo": "knockout", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["edgar", "nani", "wendy"], "nuevo": true},
-    {"id": "dryseason", "nombre": "Dry Season", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": true, "top": ["mrp", "sprout", "brock", "amber", "mortis"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "hideout", "nombre": "Hideout", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "sprout", "leon", "mortis", "amber"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "shootingstar", "nombre": "Shooting Star", "modo": "bounty", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": true, "top": ["mrp", "bolt", "angelo", "pearl", "najia"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "layercake", "nombre": "Layer Cake", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": false, "top": ["mrp", "bo", "brock", "edgar", "amber"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "dryseason", "nombre": "Dry Season", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": true, "top": ["mrp", "sprout", "brock", "vince", "amber"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "hideout", "nombre": "Hideout", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "sprout", "mortis", "leon", "bolt"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "shootingstar", "nombre": "Shooting Star", "modo": "bounty", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": true, "top": ["mrp", "angelo", "bolt", "pearl", "najia"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
+    {"id": "layercake", "nombre": "Layer Cake", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": false, "top": ["mrp", "bo", "brock", "edgar", "amber"], "fuenteTop": "seemeta Competitivo 3-9 nov 2026"},
     {"id": "endothermicshift", "nombre": "Endothermic Shift", "nombreEs": "Desplazamiento endotérmico", "modo": "bounty", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "belle", "byron"], "nuevo": true},
     {"id": "eyeofthebeholder", "nombre": "Eye of the Beholder", "nombreEs": "Ojo avizor", "modo": "bounty", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["belle", "tick", "byron"], "nuevo": true},
     {"id": "suddenmovement", "nombre": "Sudden Movement", "nombreEs": "Movimiento repentino", "modo": "bounty", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["piper", "bo", "bolt"], "nuevo": true}

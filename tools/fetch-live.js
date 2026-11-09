@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* Genera data/live.json con imágenes de mapas (y de brawlers sin ID) + win rates si hay fuente.
    Lo ejecuta GitHub Actions (.github/workflows/live.yml). Fuentes, en orden:
-     1. API de Brawlify (IDs + win rates) — actualmente responde 403, se deja por si vuelve.
+     1. API pública de Brawlify (api.brawlapi.com): IDs de brawlers e imágenes de mapas. Sus win rates por mapa
+        llegan vacíos desde 2026; las estadísticas de Competitivo salen de tools/fetch-meta.js (data/stats.json).
      2. Wiki de Brawl Stars en Fandom (MediaWiki API, imagen principal de cada página).
      3. Liquipedia (MediaWiki API) como respaldo. */
 const fs = require("fs");
@@ -10,6 +11,7 @@ const root = path.join(__dirname, "..");
 const UA = { "User-Agent": "DraftLab/1.0 (https://github.com/enriquearesa/Brawl-draft-lab; fan tool)", Accept: "application/json" };
 const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
 const listOf = (j) => (j && (j.list || j.items || (Array.isArray(j) ? j : null))) || [];
+const API = "https://api.brawlapi.com/v1"; // api.brawlify.com responde 403 desde nov 2026
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function get(url, tries) {
@@ -54,7 +56,7 @@ async function wikiImages(api, titles) {
 
   // 1) Brawlify
   console.log("Brawlify…");
-  const [bj, mj] = await Promise.all([get("https://api.brawlify.com/v1/brawlers"), get("https://api.brawlify.com/v1/maps")]);
+  const [bj, mj] = await Promise.all([get(API + "/brawlers"), get(API + "/maps")]);
   const bl = listOf(bj), ml = listOf(mj);
   if (bl.length || ml.length) {
     out.fuentes.push("brawlify");
@@ -64,7 +66,7 @@ async function wikiImages(api, titles) {
       const c = ml.filter((x) => norm(x.name) === norm(m.nombre)).sort((a, b) => (norm(a.gameMode && a.gameMode.name) === modeEn ? 0 : 1) - (norm(b.gameMode && b.gameMode.name) === modeEn ? 0 : 1))[0];
       if (!c) continue;
       out.maps.push({ id: c.id, name: m.nombre, mapId: m.id, img: c.imageUrl || "https://cdn.brawlify.com/maps/regular/" + c.id + ".png" });
-      const d = await get("https://api.brawlify.com/v1/maps/" + c.id, 1);
+      const d = await get(API + "/maps/" + c.id, 1);
       const s = {};
       ((d && d.stats) || []).forEach((y) => { const id = y.brawler || y.brawlerId; if (id && y.winRate != null) s[id] = { wr: Math.round(y.winRate * 10) / 10, use: +(y.useRate || 0) }; });
       if (Object.keys(s).length) out.stats[m.id] = s;
