@@ -49,8 +49,8 @@
   }
   function mapArt(m, big) {
     const src = mapImg(m);
-    return (src ? '<img src="' + src + '" alt="" loading="lazy" onerror="this.remove()">' : "") +
-      (src ? "" : '<div class="fb">' + (MODE_EMOJI[m.modo] || "🎮") + "</div>");
+    return '<div class="fb">' + (MODE_EMOJI[m.modo] || "🎮") + "</div>" +
+      (src ? '<img src="' + src + '" alt="" loading="lazy" onerror="this.remove()">' : "");
   }
   function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("on"), 1800); }
   function ago(iso) {
@@ -94,6 +94,20 @@
   }
 
   async function loadLive() {
+    // 1) data/live.json: lo genera GitHub Actions cada 6 h (el navegador no puede llamar a Brawlify por CORS)
+    try {
+      const r = await fetch("data/live.json", { cache: "no-cache" });
+      if (r.ok) {
+        const j = await r.json();
+        applyLive(j);
+        Object.keys(j.stats || {}).forEach((mid) => E.setLiveStats(mid, j.stats[mid]));
+        S.live.ok = true;
+        S.live.t = j.t;
+        render();
+        return;
+      }
+    } catch (e) {}
+    // 2) Respaldo: API directa (solo funciona si Brawlify permite CORS)
     const cached = LS.get("live", null);
     if (cached && Date.now() - cached.t < 12 * 3600e3) { applyLive(cached); S.live.ok = true; render(); }
     try {
@@ -116,7 +130,7 @@
 
   async function loadMapStats(mapId) {
     const m = E.maps[mapId];
-    if (!m) return;
+    if (!m || S.live.t) return; // con data/live.json las estadísticas ya están cargadas
     const lm = S.live.maps[norm(m.nombre)];
     if (!lm || !lm.id) return;
     const key = "stats_" + mapId;
@@ -244,7 +258,7 @@
   function metaPill() {
     const m = META.meta;
     const dot = S.live.ok === true ? "on" : S.live.ok === false ? "off" : "";
-    const live = S.live.ok === true ? "Brawlify en vivo" : S.live.ok === false ? "Sin datos en vivo" : "Conectando…";
+    const live = S.live.ok === true ? "Brawlify en vivo" + (S.live.t ? " (" + ago(S.live.t) + ")" : "") : S.live.ok === false ? "Sin datos en vivo" : "Conectando…";
     return '<div class="metapill" data-act="changelog"><span class="dot ' + dot + '"></span><b>' + esc(m.temporada) + "</b>" +
       "<span>· meta del " + esc(fmtDate(m.fechaDatos)) + " · comprobado " + esc(ago(m.comprobado)) + "</span><span>· " + live + "</span></div>";
   }
