@@ -2,6 +2,8 @@
 
 Lo ejecuta la tarea programada diaria de Claude (o tú a mano). El objetivo es que `data/meta.json` refleje siempre el meta competitivo actual sin tocar la app.
 
+> `data/live.json` (imágenes de mapas y retratos) lo genera GitHub Actions (`.github/workflows/live.yml`) cada 6 h y cada vez que cambia `meta.json`. No lo edites a mano: si añades un mapa o brawler nuevo a `meta.json`, la Action buscará su imagen en la wiki por su nombre en inglés.
+
 ## 1. Comprobar si hay novedades
 
 Busca en la web (usa varias búsquedas, prioriza fuentes oficiales) cualquier cambio posterior a `meta.comprobado`:
