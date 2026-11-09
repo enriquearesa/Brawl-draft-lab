@@ -130,21 +130,29 @@ async function wikiImages(api, titles) {
     if (hit) out.es[m.id] = hit.title;
     await sleep(1200);
   }
-  // Respaldo: título de la página en español de seemeta (usa los nombres del juego)
-  for (const m of meta.mapas.filter((x) => !x.nombreEs && !out.es[x.id])) {
-    try {
-      const url = "https://seemeta.com/es/brawl-stars/tier-list?mode=" + m.modo + "&map=" + encodeURIComponent(m.nombre);
-      const r = await fetch(url, { headers: { "User-Agent": UA["User-Agent"], "Accept-Language": "es-ES" } });
-      if (r.ok) {
+  // Respaldo: enlaces de las páginas en español de seemeta (texto del enlace = nombre del juego en español)
+  if (meta.mapas.some((x) => !x.nombreEs && !out.es[x.id])) {
+    out.esSeemeta = {};
+    for (const page of ["https://seemeta.com/es/brawl-stars/maps", "https://seemeta.com/es/brawl-stars/map-rotation"]) {
+      try {
+        const r = await fetch(page, { headers: { "User-Agent": UA["User-Agent"], "Accept-Language": "es-ES" } });
+        if (!r.ok) { console.log("  [seemeta-es] " + page + " → " + r.status); continue; }
         const html = await r.text();
-        const h1 = ((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [])[1] || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-        const title = ((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "").trim();
-        console.log("  [seemeta-es] " + m.nombre + " | h1: " + h1 + " | title: " + title);
-        const cand = (h1.match(/^(?:Tier list de |Mejores brawlers (?:para|en) )?(.+?)(?: en Brawl Stars| tier list| \(| ·| -|:|$)/i) || [])[1];
-        if (cand && norm(cand) !== norm(m.nombre) && cand.length < 40 && !/brawl stars|tier/i.test(cand)) out.esSeemeta = Object.assign(out.esSeemeta || {}, { [m.id]: cand.trim() });
-      } else console.log("  [seemeta-es] " + m.nombre + " → " + r.status);
-    } catch (e) { console.log("  [seemeta-es] " + m.nombre + " → " + e.message); }
-    await sleep(800);
+        const re = /href="[^"]*[?&](?:amp;)?map=([^"&]+)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
+        let mm, n = 0;
+        while ((mm = re.exec(html))) {
+          const en = decodeURIComponent(mm[1].replace(/\+/g, " ")).replace(/&#39;|&#x27;/g, "'");
+          const txt = mm[2].replace(/<[^>]+>/g, " ").replace(/&#39;|&#x27;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+          const m = meta.mapas.find((x) => norm(x.nombre) === norm(en));
+          if (m && txt && norm(txt) !== norm(en) && txt.length < 45 && !out.esSeemeta[m.id]) {
+            out.esSeemeta[m.id] = txt;
+            console.log("  [seemeta-es] " + en + " → " + txt);
+          }
+          n++;
+        }
+        console.log("  [seemeta-es] " + page + ": " + n + " enlaces de mapa");
+      } catch (e) { console.log("  [seemeta-es] " + page + " → " + e.message); }
+    }
   }
 
   // Respaldo de imágenes: búsqueda en la wiki inglesa (p. ej. diferencias de mayúsculas)
