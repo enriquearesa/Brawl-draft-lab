@@ -14,4 +14,4 @@ jobs:
       - run: node tools/probe.js
       - run: |
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f out && git commit -q -m "probe: datos [skip ci]" && git push origin HEAD:probe-api
+          git add -f out2 && git commit -q -m "probe: datos [skip ci]" && git push origin HEAD:probe-api
