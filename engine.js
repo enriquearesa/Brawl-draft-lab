@@ -130,6 +130,7 @@
         if (b.clase === "AS") v += 0.04;
         if (has(b, "D")) v += 0.02;
       }
+      if ((map.sugeridos || []).indexOf(b.id) >= 0) v += 0.1;
     }
     v += (modo.sesgoClase || {})[b.clase] || 0;
     if ((modo.mejores || []).indexOf(b.id) >= 0) v += 0.06;
@@ -221,10 +222,11 @@
       const reasons = [];
       parts.map = this.mapFit(c, map);
       const idx = map.top.indexOf(c.id);
-      if (idx >= 0) reasons.push({ t: "#" + (idx + 1) + " en " + map.nombre, k: "good" });
-      else if (c.tier === "S+" || c.tier === "S") reasons.push({ t: "Tier " + c.tier + " del meta", k: "good" });
+      if (idx >= 0) reasons.push({ t: "#" + (idx + 1) + " en este mapa", k: "good" });
+      else if ((map.sugeridos || []).indexOf(c.id) >= 0) reasons.push({ t: "Recomendado para este mapa", k: "good" });
+      else if (c.tier === "S+" || c.tier === "S") reasons.push({ t: "Nivel " + c.tier + " del meta", k: "good" });
       const lv = this.liveFor(c, map);
-      if (lv && lv.wr != null) reasons.push({ t: "WR " + lv.wr.toFixed(1) + "% en vivo", k: "live" });
+      if (lv && lv.wr != null) reasons.push({ t: lv.wr.toFixed(1) + "% de victorias", k: "live" });
 
       if (E.length) {
         let sum = 0, best = null, bestV = -2, worst = null, worstV = 2;
@@ -235,7 +237,7 @@
           if (m < worstV) { worstV = m; worst = e; }
         }
         parts.counter = (sum / E.length + 1) / 2;
-        if (bestV > 0.2) reasons.push({ t: "Counter a " + best.nombre, k: "good" });
+        if (bestV > 0.2) reasons.push({ t: "Contrarresta a " + best.nombre, k: "good" });
         if (worstV < -0.3) reasons.push({ t: worst.nombre + " le gana", k: "bad" });
       } else parts.counter = 0.5;
 
@@ -268,14 +270,14 @@
           let s = 0;
           O.forEach((o) => (s += this.matchup(c, o, map)));
           parts.deny = ((s / O.length) + 1) / 2;
-          if (s / O.length > 0.25) reasons.push({ t: "Les quitas un counter", k: "info" });
+          if (s / O.length > 0.25) reasons.push({ t: "Se lo quitas al rival", k: "info" });
         } else parts.deny = parts.map;
       } else parts.deny = 0.5;
 
       let score = w.map * parts.map + w.counter * parts.counter + w.safe * parts.safe + w.syn * parts.syn + w.deny * parts.deny;
       const wsum = w.map + w.counter + w.safe + w.syn + w.deny;
       score /= wsum;
-      if (usePool && !poolSet.has(c.id)) { score -= 0.08; reasons.push({ t: "Fuera de tu pool", k: "bad" }); }
+      if (usePool && !poolSet.has(c.id)) { score -= 0.08; reasons.push({ t: "No está en tus brawlers", k: "bad" }); }
       out.push({ b: c, score, parts, reasons: reasons.slice(0, 4) });
     }
     out.sort((a, b) => b.score - a.score);
@@ -300,15 +302,16 @@
       let score = 0.68 * f + 0.32 * mt;
       const reasons = [];
       const idx = map.top.indexOf(c.id);
-      if (idx >= 0) reasons.push({ t: "#" + (idx + 1) + " en " + map.nombre, k: "good" });
-      else if (c.tier === "S+") reasons.push({ t: "Tier S+ del meta", k: "good" });
+      if (idx >= 0) reasons.push({ t: "#" + (idx + 1) + " en este mapa", k: "good" });
+      else if ((map.sugeridos || []).indexOf(c.id) >= 0) reasons.push({ t: "Recomendado para este mapa", k: "good" });
+      else if (c.tier === "S+") reasons.push({ t: "Nivel S+ del meta", k: "good" });
       if (mt > 0.56) reasons.push({ t: "Castiga al meta del mapa", k: "info" });
       if (myPool.length) {
         let s = 0;
         myPool.forEach((p) => (s += this.matchup(c, p, map)));
         s /= myPool.length;
         score += 0.15 * s;
-        if (s > 0.2) reasons.push({ t: "Counter a tu pool", k: "bad" });
+        if (s > 0.2) reasons.push({ t: "Contrarresta a tus brawlers", k: "bad" });
       }
       out.push({ b: c, score, parts: { map: f, counter: mt }, reasons });
     }
@@ -405,7 +408,7 @@
         T.us.forEach((a) => (s += this.matchup(a, e, map)));
         if (s > tv) { tv = s; tgt = e; }
       });
-      if (tgt) plan.push({ tipo: "objetivo", t: "Objetivo prioritario: " + tgt.nombre + " (vuestro mejor matchup)." });
+      if (tgt) plan.push({ tipo: "objetivo", t: "Objetivo prioritario: " + tgt.nombre + " (es contra quien mejor os va)." });
       if (map.arquetipo === "cerrado" && !T.us.some((b) => has(b, "W") || b.clase === "AR"))
         plan.push({ tipo: "alerta", t: "Mapa cerrado sin rompe-muros ni lanzadores: evita peleas largas tras muros." });
       if (map.arquetipo === "abierto" && us[0] && us[0].alcance < 4)

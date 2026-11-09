@@ -44,6 +44,7 @@
     const m = META.modos[modo];
     return '<span class="memo">' + (MODE_EMOJI[modo] || "🎮") + "</span>";
   }
+  function mapName(m) { return (m && (m.nombreEs || (S.live.es || {})[m.id] || m.nombre)) || ""; }
   function mapImg(m) {
     const lm = S.live.maps[norm(m.nombre)];
     return lm && lm.img ? lm.img : null;
@@ -92,6 +93,7 @@
     const maps = {};
     (data.maps || []).forEach((m) => { if (m.name) maps[norm(m.name)] = { id: m.id, img: m.img }; });
     S.live.maps = maps;
+    S.live.es = data.es || {};
     Object.entries(data.imgBrawlers || {}).forEach(([id, src]) => { if (E.byId[id] && !E.byId[id].gameId) E.byId[id].img = src; });
   }
 
@@ -269,7 +271,7 @@
     const pool = S.format === "bsc" ? "bsc" : "ranked";
     let maps = META.mapas.filter((m) => S.allMaps || m.pools.indexOf(pool) >= 0);
     if (S.mode !== "all") maps = maps.filter((m) => m.modo === S.mode);
-    let h = '<div class="top"><div class="logo">DRAFT LAB<small>BRAWL STARS · PICK &amp; BAN</small></div><div class="sp"></div>' +
+    let h = '<div class="top"><div class="logo">DRAFT LAB<small>BRAWL STARS · ASISTENTE</small></div><div class="sp"></div>' +
       '<button class="ib" data-act="history" title="Historial">📈</button><button class="ib" data-act="settings" title="Ajustes y pool">⚙️</button></div>';
     h += metaPill();
     (META.meta.avisos || []).slice(0, 1).forEach((a) => (h += '<div class="banner">📣 ' + esc(a) + "</div>"));
@@ -278,9 +280,9 @@
         "</b>. Aparecen como neutrales hasta la próxima actualización.</div>";
     if (S.draft && S.draft.phase !== "done") {
       const m = E.maps[S.draft.mapId];
-      if (m) h += '<div class="banner" data-act="resume" style="cursor:pointer">⏯️ Tienes un draft a medias en <b>' + esc(m.nombre) + "</b>. Toca para continuar.</div>";
+      if (m) h += '<div class="banner" data-act="resume" style="cursor:pointer">⏯️ Tienes una selección a medias en <b>' + esc(mapName(m)) + "</b>. Toca para continuar.</div>";
     }
-    h += '<div class="seg"><button data-act="fmt" data-v="ranked" class="' + (S.format === "ranked" ? "on" : "") + '">🏆 Ranked</button>' +
+    h += '<div class="seg"><button data-act="fmt" data-v="ranked" class="' + (S.format === "ranked" ? "on" : "") + '">🏆 Competitivo</button>' +
       '<button data-act="fmt" data-v="bsc" class="' + (S.format === "bsc" ? "on" : "") + '">🎙️ Pro · BSC</button></div>';
     h += '<div class="chips"><button class="chip ' + (S.mode === "all" ? "on" : "") + '" data-act="mode" data-v="all">Todos</button>';
     MODE_ORDER.forEach((k) => {
@@ -288,7 +290,7 @@
       h += '<button class="chip ' + (S.mode === k ? "on" : "") + '" style="--mc:' + md.color + '" data-act="mode" data-v="' + k + '">' + modeIcon(k) + esc(md.nombre) + "</button>";
     });
     h += "</div>";
-    h += '<div class="sub"><span>' + maps.length + " mapas · " + (S.format === "bsc" ? "pool oficial BSC 2026" : "rotación Ranked actual") + "</span>" +
+    h += '<div class="sub"><span>' + maps.length + " mapas · " + (S.format === "bsc" ? "pool oficial BSC 2026" : "rotación competitiva actual") + "</span>" +
       '<span class="tog" data-act="allmaps">Todos los mapas <span class="sw ' + (S.allMaps ? "on" : "") + '"></span></span></div>';
     MODE_ORDER.forEach((k) => {
       const ms = maps.filter((m) => m.modo === k);
@@ -297,9 +299,10 @@
       h += '<div class="mode-h disp" style="--mc:' + md.color + '">' + modeIcon(k) + esc(md.nombre) + '<span class="bar"></span></div><div class="maps">';
       ms.forEach((m) => {
         h += '<div class="map" style="--mc:' + md.color + '" data-act="map" data-v="' + m.id + '"><div class="art">' + mapArt(m) + '</div><div class="shade"></div><div class="info">' +
-          '<div class="nm">' + esc(m.nombre) + '</div><div class="tags"><span class="tg m">' + esc(md.nombre) + '</span><span class="tg">' + esc(m.arquetipo) + "</span>" +
+          '<div class="nm">' + esc(mapName(m)) + "</div>" + (mapName(m) !== m.nombre ? '<div class="en">' + esc(m.nombre) + "</div>" : "") +
+          '<div class="tags">' + (m.nuevo ? '<span class="tg new">Nuevo</span>' : "") + '<span class="tg">' + esc(m.arquetipo) + "</span>" +
           (m.pools.indexOf("bsc") >= 0 ? '<span class="tg bsc">BSC</span>' : "") + '</div><div class="minis">' +
-          (m.top.length ? m.top.slice(0, 4).map((id) => por(E.byId[id])).join("") : E.recommendBans({ format: S.format, mapId: m.id, firstPick: "us", bans: { us: [], them: [] }, globalBans: { us: [], them: [] }, picks: { us: [], them: [] } }, "us", 4).map((r) => por(r.b)).join("")) +
+          (m.top.length || (m.sugeridos || []).length ? (m.top.length ? m.top : m.sugeridos).slice(0, 4).map((id) => por(E.byId[id])).join("") : E.recommendBans({ format: S.format, mapId: m.id, firstPick: "us", bans: { us: [], them: [] }, globalBans: { us: [], them: [] }, picks: { us: [], them: [] } }, "us", 4).map((r) => por(r.b)).join("")) +
           "</div></div></div>";
       });
       h += "</div>";
@@ -317,36 +320,36 @@
     const rules = META.reglas[d.format];
     const img = mapImg(m);
     let h = '<div class="dbg">' + (img ? '<img src="' + esc(img) + '" alt="" referrerpolicy="no-referrer" onerror="this.remove()">' : "") + "</div>";
-    h += '<div class="dh"><button class="ib" data-act="home">←</button><div class="t"><div class="nm">' + esc(m.nombre) + '</div><div class="md">' + modeIcon(m.modo) +
+    h += '<div class="dh"><button class="ib" data-act="home">←</button><div class="t"><div class="nm">' + esc(mapName(m)) + '</div><div class="md">' + modeIcon(m.modo) +
       esc(md.nombre) + " · " + esc(rules.nombre) + "</div></div>" +
       '<button class="ib" data-act="undo" title="Deshacer">↶</button><button class="ib" data-act="reset" title="Reiniciar">⟲</button></div>';
-    const phases = d.format === "bsc" ? [["gbans", "Bans globales"], ["bans", "Bans"], ["picks", "Picks"], ["done", "Resumen"]] : [["bans", "Bans"], ["picks", "Picks"], ["done", "Resumen"]];
+    const phases = d.format === "bsc" ? [["gbans", "Bloqueos globales"], ["bans", "Bloqueos"], ["picks", "Selección"], ["done", "Resumen"]] : [["bans", "Bloqueos"], ["picks", "Selección"], ["done", "Resumen"]];
     const pi = phases.findIndex((p) => p[0] === d.phase);
     h += '<div class="steps">' + phases.map((p, i) => '<div class="' + (i === pi ? "on" : i < pi ? "ok" : "") + '">' + (i < pi ? "✓ " : "") + p[1] + "</div>").join("") + "</div>";
 
     const a = d.active;
     if (a) {
       const us = a.side === "us";
-      const big = a.kind === "pick" ? (us ? "TU PICK" : "PICK RIVAL") : a.kind === "gban" ? (us ? "TU BAN GLOBAL" : "BAN GLOBAL RIVAL") : us ? "TU BAN" : "BAN RIVAL";
-      const sm = a.kind === "pick" ? (us ? "Elige y bloquea en el juego" : "Marca lo que han elegido") : a.kind === "ban" ? (us ? "Los baneos son simultáneos" : "Marca sus baneos cuando se revelen") : "Para toda la serie";
+      const big = a.kind === "pick" ? (us ? "TE TOCA ELEGIR" : "ELIGE EL RIVAL") : a.kind === "gban" ? (us ? "TU BLOQUEO GLOBAL" : "BLOQUEO GLOBAL RIVAL") : us ? "TU BLOQUEO" : "BLOQUEO RIVAL";
+      const sm = a.kind === "pick" ? (us ? "Elige y bloquea en el juego" : "Marca lo que han elegido") : a.kind === "ban" ? (us ? "Los bloqueos son simultáneos" : "Marca sus bloqueos cuando se revelen") : "Para toda la serie";
       h += '<div class="turn" style="--tc:' + (us ? "var(--us)" : "var(--them)") + '"><div class="num">' + (a.kind === "pick" ? a.index + 1 : "🚫") + '</div><div><div class="big">' + big + '</div><div class="sm">' + sm + "</div></div>" +
         '<div class="sp"></div>' + (d.phase !== "picks" ? '<button class="skip" data-act="skip">Saltar →</button>' : "") +
         (a.kind === "pick" ? '<div class="timer" style="animation-duration:' + (rules.segundosPorPick || 20) + 's"></div>' : "") + "</div>";
     } else if (d.phase === "done") {
       const ev = E.evaluate(est(d));
-      h += '<div class="turn" style="--tc:var(--gold)" data-act="summary"><div class="num">🏁</div><div><div class="big">DRAFT CERRADO</div><div class="sm">Probabilidad estimada ' + Math.round(ev.win * 100) + "% · toca para ver el plan</div></div></div>";
+      h += '<div class="turn" style="--tc:var(--gold)" data-act="summary"><div class="num">🏁</div><div><div class="big">SELECCIÓN CERRADA</div><div class="sm">Probabilidad estimada ' + Math.round(ev.win * 100) + "% · toca para ver el plan</div></div></div>";
     }
 
     h += '<div class="dwrap"><div class="board">' + teamCol(d, "us") + teamCol(d, "them") + "</div><div>";
     if (a) {
       const recs = recsFor(d, 5);
-      const ttl = a.kind === "pick" ? (a.side === "us" ? "Mejores picks para ti" : "Lo que probablemente elijan") : a.side === "us" ? "Bans recomendados" : "Bans probables del rival";
+      const ttl = a.kind === "pick" ? (a.side === "us" ? "Mejores opciones para ti" : "Lo que probablemente elijan") : a.side === "us" ? "Bloqueos recomendados" : "Bloqueos probables del rival";
       h += '<div class="recs"><h2>' + (a.side === "us" ? "🧠" : "🔮") + " " + ttl + '<span class="sp"></span></h2>';
       recs.forEach((r, i) => (h += recCard(r, i, a)));
       h += '<button class="more" data-act="picker">Ver todos los brawlers</button></div>';
     } else if (d.phase === "done") {
-      h += '<div class="recs"><h2>🏁 Draft completo</h2><div class="row"><button class="btn" data-act="summary">Ver análisis y plan</button></div>' +
-        '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="again">Otro set · mismo mapa</button><button class="btn ghost" data-act="home">Cambiar mapa</button></div></div>';
+      h += '<div class="recs"><h2>🏁 Selección completa</h2><div class="row"><button class="btn" data-act="summary">Ver análisis y plan</button></div>' +
+        '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="again">Otra partida · mismo mapa</button><button class="btn ghost" data-act="home">Cambiar mapa</button></div></div>';
     }
     h += "</div></div>";
     return h;
@@ -357,15 +360,15 @@
     const ord = E.order(est(d));
     const nums = []; ord.forEach((s, i) => { if (s === side) nums.push(i + 1); });
     const a = d.active || {};
-    let h = '<div class="team ' + side + '"><h3>' + (us ? "🔵 Nosotros" : "🔴 Rivales") + (d.firstPick === side ? ' <span class="tg">1er pick</span>' : "") + "</h3>";
+    let h = '<div class="team ' + side + '"><h3>' + (us ? "🔵 Nosotros" : "🔴 Rivales") + (d.firstPick === side ? ' <span class="tg">Elige 1º</span>' : "") + "</h3>";
     if (d.format === "bsc") {
-      h += '<div class="lbl">Bans globales</div><div class="bans">';
+      h += '<div class="lbl">Bloqueos globales</div><div class="bans">';
       d.globalBans[side].forEach((id, i) => (h += banSlot(d, "gban", side, i, id, a)));
       h += "</div>";
     }
-    h += '<div class="lbl">Bans</div><div class="bans">';
+    h += '<div class="lbl">Bloqueos</div><div class="bans">';
     d.bans[side].forEach((id, i) => (h += banSlot(d, "ban", side, i, id, a)));
-    h += '</div><div class="lbl">Picks</div>';
+    h += '</div><div class="lbl">Brawlers</div>';
     d.picks[side].forEach((id, i) => {
       const b = id && E.byId[id];
       const act = a.kind === "pick" && a.side === side && a.slot === i;
@@ -388,9 +391,9 @@
     const bar = (lab, v) => "<div>" + lab + "<i><b style=\"width:" + Math.round((v || 0) * 100) + '%"></b></i></div>';
     const col = a.side === "us" ? "var(--gold)" : "var(--them)";
     return '<div class="rc ' + (i === 0 && a.side === "us" ? "first" : "") + '" data-act="pick" data-v="' + b.id + '">' + por(b) +
-      '<div class="mid"><div class="n">' + esc(b.nombre) + ' <span class="cls" style="--cc:' + (CLASS[b.clase] || CLASS["?"]).c + '">' + esc((CLASS[b.clase] || CLASS["?"]).n) + "</span></div>" +
+      '<div class="mid"><div class="n">' + esc(b.nombre) + (i === 0 && a.side === "us" ? ' <span class="best">★ Mejor</span>' : "") + ' <span class="cls" style="--cc:' + (CLASS[b.clase] || CLASS["?"]).c + '">' + esc((CLASS[b.clase] || CLASS["?"]).n) + "</span></div>" +
       '<div class="rs">' + r.reasons.map((x) => '<span class="' + x.k + '">' + esc(x.t) + "</span>").join("") + "</div>" +
-      (a.kind === "pick" ? '<div class="bars">' + bar("Mapa", p.map) + bar("Counter", p.counter) + bar("Seguro", p.safe) + bar("Sinergia", p.syn) + "</div>" : "") +
+      (a.kind === "pick" ? '<div class="bars">' + bar("Mapa", p.map) + bar("Contra", p.counter) + bar("Seguro", p.safe) + bar("Sinergia", p.syn) + "</div>" : "") +
       '</div><div class="ring" style="--p:' + pct + ";--rcol:" + col + '"><span>' + pct + "</span></div></div>";
   }
 
@@ -414,10 +417,11 @@
   function sheetSetup() {
     const m = E.maps[S.sheetArg];
     const md = META.modos[m.modo];
-    let h = '<div class="hero" style="--mc:' + md.color + '">' + mapArt(m) + '<div class="cap"><div class="nm">' + esc(m.nombre) + '</div><div class="small">' + modeIcon(m.modo) + " " + esc(md.nombre) + " · mapa " + esc(m.arquetipo) + (m.arbustos ? " con arbustos" : "") + "</div></div></div>";
+    let h = '<div class="hero" style="--mc:' + md.color + '">' + mapArt(m) + '<div class="cap"><div class="nm">' + esc(mapName(m)) + '</div><div class="small">' + modeIcon(m.modo) + " " + esc(md.nombre) + " · mapa " + esc(m.arquetipo) + (m.arbustos ? " con arbustos" : "") + "</div></div></div>";
     if (m.top.length) h += '<div class="q">Los más fuertes ahora</div><div class="minis" style="display:flex;gap:6px;margin-bottom:14px">' + m.top.map((id) => por(E.byId[id])).join("") + "</div>";
-    h += '<div class="q">¿Quién tiene el primer pick?</div><div class="row"><button class="btn blue" data-act="start" data-v="us">🔵 Nosotros</button><button class="btn red" data-act="start" data-v="them">🔴 Rivales</button></div>';
-    if (S.format === "bsc") h += '<p class="small">En formato pro, el equipo con primer pick es el equipo A (bans globales B→A→A→B).</p>';
+    else if ((m.sugeridos || []).length) h += '<div class="q">Recomendados (mapa nuevo, aún sin estadísticas)</div><div class="minis" style="display:flex;gap:6px;margin-bottom:14px">' + m.sugeridos.map((id) => por(E.byId[id])).join("") + "</div>";
+    h += '<div class="q">¿Quién elige primero?</div><div class="row"><button class="btn blue" data-act="start" data-v="us">🔵 Nosotros</button><button class="btn red" data-act="start" data-v="them">🔴 Rivales</button></div>';
+    if (S.format === "bsc") h += '<p class="small">En formato pro, el equipo que elige primero es el equipo A (bloqueos globales B→A→A→B).</p>';
     return h;
   }
 
@@ -430,7 +434,7 @@
     const q = norm(S.pf.q);
     let list = E.list.slice().filter((b) => (S.pf.cls === "all" || b.clase === S.pf.cls) && (!q || norm(b.nombre).indexOf(q) >= 0));
     list.sort((x, y) => (ok(y.id) - ok(x.id)) || ((sc[y.id] || 0) - (sc[x.id] || 0)));
-    const ttl = (a.kind === "pick" ? "Pick " : a.kind === "gban" ? "Ban global " : "Ban ") + (a.side === "us" ? "nuestro" : "rival");
+    const ttl = (a.kind === "pick" ? "Elección " : a.kind === "gban" ? "Bloqueo global " : "Bloqueo ") + (a.side === "us" ? "nuestro" : "rival");
     let h = '<h2>' + (a.side === "us" ? "🔵 " : "🔴 ") + ttl + '<span class="sp"></span><button class="ib" data-act="close">✕</button></h2>';
     h += '<input class="srch" placeholder="Buscar brawler…" value="' + esc(S.pf.q) + '" data-inp="q" autocomplete="off">';
     h += '<div class="chips" style="margin-top:10px"><button class="chip ' + (S.pf.cls === "all" ? "on" : "") + '" data-act="pcls" data-v="all">Todas</button>';
@@ -459,10 +463,10 @@
     const m = E.maps[d.mapId];
     const ev = E.evaluate(est(d));
     const w = Math.round(ev.win * 100);
-    let h = '<h2>📊 Análisis del draft<span class="sp"></span><button class="ib" data-act="close">✕</button></h2>';
+    let h = '<h2>📊 Análisis de la selección<span class="sp"></span><button class="ib" data-act="close">✕</button></h2>';
     h += '<div class="wp"><div class="lab"><span class="u">' + w + '%</span><span class="small" style="align-self:center">probabilidad estimada</span><span class="t">' + (100 - w) + '%</span></div><div class="bar"><div class="a" style="width:' + w + '%"></div><div class="b" style="width:' + (100 - w) + '%"></div></div></div>';
     const team = (k) => d.picks[k].filter(Boolean).map((id) => por(E.byId[id])).join("");
-    h += '<div class="grades"><div class="grade us"><div class="small">Nuestro draft</div><div class="g">' + ev.us.grade + '</div><div class="tm">' + team("us") + '</div></div><div class="grade them"><div class="small">Rival</div><div class="g">' + ev.them.grade + '</div><div class="tm">' + team("them") + "</div></div></div>";
+    h += '<div class="grades"><div class="grade us"><div class="small">Nuestro equipo</div><div class="g">' + ev.us.grade + '</div><div class="tm">' + team("us") + '</div></div><div class="grade them"><div class="small">Rival</div><div class="g">' + ev.them.grade + '</div><div class="tm">' + team("them") + "</div></div></div>";
     h += radarSVG(ev.us.radar, ev.them.radar) + '<div class="legend"><span><i style="background:var(--us)"></i>Nosotros</span><span><i style="background:var(--them)"></i>Rivales</span></div>';
     h += '<div class="q">Plan de partida</div><div class="plan">';
     ev.plan.forEach((p) => {
@@ -473,17 +477,17 @@
     if (!d.result) h += '<div class="q">¿Cómo ha ido?</div><div class="row"><button class="btn blue" data-act="result" data-v="W">✅ Ganamos</button><button class="btn red" data-act="result" data-v="L">❌ Perdimos</button></div>';
     else h += '<p class="small">Resultado guardado: <b>' + (d.result === "W" ? "victoria" : "derrota") + "</b>.</p>";
     h += '<div class="row" style="margin-top:14px"><a class="btn ghost" target="_blank" rel="noopener" href="https://claude.ai/new?q=' + encodeURIComponent(claudePrompt(d, ev)) + '">🤖 Analizar con Claude</a></div>';
-    h += '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="again">Otro set · mismo mapa</button><button class="btn ghost" data-act="home">Cambiar mapa</button></div>';
-    h += '<p class="small" style="margin-top:12px">' + esc(m.nombre) + ": estimación heurística a partir del meta de " + esc(fmtDate(META.meta.fechaDatos)) + ". Úsala como guía, no como verdad absoluta.</p>";
+    h += '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="again">Otra partida · mismo mapa</button><button class="btn ghost" data-act="home">Cambiar mapa</button></div>';
+    h += '<p class="small" style="margin-top:12px">' + esc(mapName(m)) + ": estimación heurística a partir del meta de " + esc(fmtDate(META.meta.fechaDatos)) + ". Úsala como guía, no como verdad absoluta.</p>";
     return h;
   }
 
   function claudePrompt(d, ev) {
     const m = E.maps[d.mapId], md = META.modos[m.modo];
     const n = (arr) => arr.filter(Boolean).map((id) => E.byId[id].nombre).join(", ") || "—";
-    return "Analiza este draft de Brawl Stars (" + META.reglas[d.format].nombre + ", mapa " + m.nombre + " · " + md.en + "). Meta de referencia: " + META.meta.temporada + ", " + META.meta.parche + ".\n" +
-      (d.format === "bsc" ? "Bans globales nuestros: " + n(d.globalBans.us) + " · rivales: " + n(d.globalBans.them) + "\n" : "") +
-      "Bans nuestros: " + n(d.bans.us) + " · bans rivales: " + n(d.bans.them) + "\n" +
+    return "Analiza este draft de Brawl Stars (" + META.reglas[d.format].nombre + ", mapa " + mapName(m) + " / " + m.nombre + " · " + md.nombre + "). Meta de referencia: " + META.meta.temporada + ", " + META.meta.parche + ".\n" +
+      (d.format === "bsc" ? "Bloqueos globales nuestros: " + n(d.globalBans.us) + " · rivales: " + n(d.globalBans.them) + "\n" : "") +
+      "Bloqueos nuestros: " + n(d.bans.us) + " · bloqueos rivales: " + n(d.bans.them) + "\n" +
       "Primer pick: " + (d.firstPick === "us" ? "nosotros" : "rivales") + "\nNuestro equipo: " + n(d.picks.us) + "\nRival: " + n(d.picks.them) + "\n" +
       "Draft Lab estima " + Math.round(ev.win * 100) + "% de victoria (nota " + ev.us.grade + " vs " + ev.them.grade + ").\n" +
       "Busca en la web el meta actual y dime: 1) quién gana el draft y por qué, 2) plan por carriles y condición de victoria, 3) qué habrías cambiado en bans/picks, 4) qué ajustar para el siguiente set.";
@@ -491,26 +495,26 @@
 
   function sheetSettings() {
     let h = '<h2>⚙️ Ajustes<span class="sp"></span><button class="ib" data-act="close">✕</button></h2>';
-    h += '<div class="q">Estilo de recomendación</div><input type="range" min="0" max="1" step="0.05" value="' + S.style + '" data-inp="style"><div class="sub"><span>🛡️ Fuerza en el mapa</span><span>⚔️ Counter puro</span></div>';
-    h += '<div class="q" style="margin-top:16px">Mi pool de brawlers (Power 11)</div><p class="small">Marca los que puedes jugar. Las recomendaciones los priorizan.</p>';
-    h += '<div class="sub"><span>' + S.pool.length + ' seleccionados</span><span class="tog" data-act="poolonly">Solo mi pool <span class="sw ' + (S.poolOnly ? "on" : "") + '"></span></span></div>';
+    h += '<div class="q">Estilo de recomendación</div><input type="range" min="0" max="1" step="0.05" value="' + S.style + '" data-inp="style"><div class="sub"><span>🛡️ Fuerza en el mapa</span><span>⚔️ Contrarrestar</span></div>';
+    h += '<div class="q" style="margin-top:16px">Mis brawlers (nivel 11)</div><p class="small">Marca los que puedes jugar. Las recomendaciones los priorizan.</p>';
+    h += '<div class="sub"><span>' + S.pool.length + ' seleccionados</span><span class="tog" data-act="poolonly">Solo mis brawlers <span class="sw ' + (S.poolOnly ? "on" : "") + '"></span></span></div>';
     h += '<div class="grid">' + E.list.slice().sort((a, b) => a.nombre.localeCompare(b.nombre)).map((b) =>
       '<div class="gi ' + (S.pool.indexOf(b.id) >= 0 ? "sel" : "") + '" data-act="pooltoggle" data-v="' + b.id + '">' + por(b) + '<div class="gn">' + esc(b.nombre) + "</div></div>").join("") + "</div>";
-    h += '<div class="row" style="margin-top:16px"><button class="btn ghost" data-act="poolclear">Vaciar pool</button><button class="btn ghost" data-act="histclear">Borrar historial</button></div>';
+    h += '<div class="row" style="margin-top:16px"><button class="btn ghost" data-act="poolclear">Vaciar selección</button><button class="btn ghost" data-act="histclear">Borrar historial</button></div>';
     return h;
   }
 
   function sheetHistory() {
     const H = S.history;
     let h = '<h2>📈 Historial<span class="sp"></span><button class="ib" data-act="close">✕</button></h2>';
-    if (!H.length) return h + '<div class="empty">Aún no hay drafts guardados. Al terminar un draft, marca si ganaste o perdiste.</div>';
+    if (!H.length) return h + '<div class="empty">Aún no hay partidas guardadas. Al terminar una selección, marca si ganaste o perdiste.</div>';
     const W = H.filter((x) => x.result === "W").length;
     const pred = H.filter((x) => (x.win >= 0.5) === (x.result === "W")).length;
-    h += '<div class="stats"><div><b>' + H.length + '</b><span>drafts</span></div><div><b>' + Math.round((W / H.length) * 100) + '%</b><span>victorias</span></div><div><b>' + Math.round((pred / H.length) * 100) + "%</b><span>acierto del motor</span></div></div>";
+    h += '<div class="stats"><div><b>' + H.length + '</b><span>partidas</span></div><div><b>' + Math.round((W / H.length) * 100) + '%</b><span>victorias</span></div><div><b>' + Math.round((pred / H.length) * 100) + "%</b><span>acierto del motor</span></div></div>";
     H.slice().reverse().slice(0, 60).forEach((x) => {
       const m = E.maps[x.mapId];
       h += '<div class="hist"><span class="r ' + x.result + '">' + x.result + "</span>" + x.picks.us.map((id) => por(E.byId[id])).join("") +
-        '<div class="m"><b>' + esc(m ? m.nombre : x.mapId) + "</b>" + new Date(x.t).toLocaleDateString("es-ES") + " · " + Math.round(x.win * 100) + "% · nota " + x.grade + "</div></div>";
+        '<div class="m"><b>' + esc(m ? mapName(m) : x.mapId) + "</b>" + new Date(x.t).toLocaleDateString("es-ES") + " · " + Math.round(x.win * 100) + "% · nota " + x.grade + "</div></div>";
     });
     h += '<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="histcopy">📋 Copiar para calibrar con Claude</button></div>';
     return h;
@@ -547,8 +551,8 @@
       case "resume": S.view = "draft"; render(); loadMapStats(S.draft.mapId); break;
       case "home": S.view = "home"; closeSheet(); render(); window.scrollTo(0, 0); break;
       case "undo": undo(); break;
-      case "reset": if (S.draft) { pushUndo(); const n = newDraft(S.draft.mapId, S.draft.firstPick); n.format = S.draft.format; n.phase = n.format === "bsc" ? "gbans" : "bans"; S.draft = n; advance(n); save(); render(); toast("Draft reiniciado"); } break;
-      case "again": if (S.draft) { const n = newDraft(S.draft.mapId, other(S.draft.firstPick)); n.format = S.draft.format; n.phase = "bans"; if (n.format === "bsc") n.globalBans = JSON.parse(JSON.stringify(S.draft.globalBans)); S.draft = n; S.undo = []; advance(n); save(); S.view = "draft"; closeSheet(); render(); toast("Nuevo set · primer pick cambiado"); } break;
+      case "reset": if (S.draft) { pushUndo(); const n = newDraft(S.draft.mapId, S.draft.firstPick); n.format = S.draft.format; n.phase = n.format === "bsc" ? "gbans" : "bans"; S.draft = n; advance(n); save(); render(); toast("Selección reiniciada"); } break;
+      case "again": if (S.draft) { const n = newDraft(S.draft.mapId, other(S.draft.firstPick)); n.format = S.draft.format; n.phase = "bans"; if (n.format === "bsc") n.globalBans = JSON.parse(JSON.stringify(S.draft.globalBans)); S.draft = n; S.undo = []; advance(n); save(); S.view = "draft"; closeSheet(); render(); toast("Nueva partida · cambia quién elige primero"); } break;
       case "skip": skipPhase(); break;
       case "slot": selectSlot(t.dataset.k, t.dataset.s, +t.dataset.i); break;
       case "picker": openSheet("picker"); break;
@@ -570,7 +574,7 @@
         LS.set("history", S.history); renderSheet(); toast(v === "W" ? "¡Victoria guardada!" : "Derrota guardada"); break;
       }
       case "histcopy": {
-        const txt = "Este es mi historial de drafts de Brawl Stars con Draft Lab (JSON). Analiza en qué mapas y composiciones fallan las recomendaciones y propón ajustes de pesos o de meta.json:\n" + JSON.stringify(S.history);
+        const txt = "Este es mi historial de partidas de Brawl Stars con Draft Lab (JSON). Analiza en qué mapas y composiciones fallan las recomendaciones y propón ajustes de pesos o de meta.json:\n" + JSON.stringify(S.history);
         (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Copiado"), () => toast("No se pudo copiar"));
         break;
       }

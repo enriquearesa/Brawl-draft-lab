@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 1,
+    "version": 2,
     "fechaDatos": "2026-11-09",
     "comprobado": "2026-11-09T13:30:00+01:00",
     "revisionCompleta": "2026-11-09",
@@ -11,6 +11,14 @@
       {
         "nombre": "seemeta · tier list y mapas Ranked (3-8 nov 2026)",
         "url": "https://seemeta.com/en/brawl-stars/maps"
+      },
+      {
+        "nombre": "Supercell · Notas de la actualización de noviembre 2026",
+        "url": "https://supercell.com/en/games/brawlstars/es/blog/game-updates/notas-de-la-actualización-de-noviembre-de-2026"
+      },
+      {
+        "nombre": "Sportsdunia · Mapas competitivos de la comunidad",
+        "url": "https://www.sportsdunia.com/gaming/brawl-stars-new-competitive-maps-announced"
       },
       {
         "nombre": "TrophyCoach · Actualización noviembre 2026",
@@ -30,8 +38,8 @@
       }
     ],
     "avisos": [
-      "Thunder Frogs anunciado para noviembre (aún sin datos). Rey y Ruby llegan en diciembre.",
-      "Los 18 mapas de la comunidad aparecen en partidas de trofeos, no en Ranked (según seemeta)."
+      "18 mapas nuevos de la comunidad en la rotación competitiva desde el 3 nov. Aún sin estadísticas: las recomendaciones usan su diseño y sugerencias iniciales.",
+      "Thunder Frogs anunciado para noviembre (aún sin datos). Rey y Ruby llegan en diciembre."
     ]
   },
   "changelog": [
@@ -43,11 +51,23 @@
         "Buffs: Draco, Shelly, Ziggy, Melodie, Chuck, Hank, Darryl, Buster, Angelo, R-T",
         "Mr. P domina casi todos los mapas tras su rework"
       ]
+    },
+    {
+      "fecha": "2026-11-09",
+      "resumen": "Añadidos los 18 mapas nuevos de la comunidad y nombres en español.",
+      "cambios": [
+        "Zona restringida: Estructura envidiable, Por secciones, Puerto sumergido",
+        "Balón Brawl: Naturaleza humana, Tiro al travesaño, Segada salvaje",
+        "Atraco: Corriente de gemas, Fuego cruzado, Alerta eterna",
+        "Atrapagemas: Desapego emocional, Sin vuelta de hoja, Rápidos radicales",
+        "Noqueo: Ondas sónicas, Ensayo general, Movimiento de pinza",
+        "Caza estelar: Desplazamiento endotérmico, Ojo avizor, Movimiento repentino"
+      ]
     }
   ],
   "reglas": {
     "ranked": {
-      "nombre": "Ranked (Mítico+)",
+      "nombre": "Competitivo (Mítico+)",
       "bans": {
         "porEquipo": 3,
         "tipo": "simultáneos, uno por jugador; ambos equipos pueden banear el mismo"
@@ -338,30 +358,48 @@
     {"id": "gemfort", "nombre": "Gem Fort", "modo": "gemGrab", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "tara", "edgar", "bo", "surge"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "hardrockmine", "nombre": "Hard Rock Mine", "modo": "gemGrab", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["mrp", "rosa", "ash", "bo", "rico"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "crystalarcade", "nombre": "Crystal Arcade", "modo": "gemGrab", "pools": ["bsc"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null},
+    {"id": "emotionaldetachment", "nombre": "Emotional Detachment", "nombreEs": "Desapego emocional", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bo", "angelo"], "nuevo": true},
+    {"id": "dontleafme", "nombre": "Don't Leaf Me", "nombreEs": "Sin vuelta de hoja", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bo", "angelo"], "nuevo": true},
+    {"id": "ravenousrapids", "nombre": "Ravenous Rapids", "nombreEs": "Rápidos radicales", "modo": "gemGrab", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bo", "angelo"], "nuevo": true},
     {"id": "centerstage", "nombre": "Center Stage", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": ["mrp", "emz", "amber", "lou", "ash"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "tripledribble", "nombre": "Triple Dribble", "modo": "brawlBall", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["elprimo", "lou", "larrylawrie", "bibi", "hank"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "pinballdreams", "nombre": "Pinball Dreams", "modo": "brawlBall", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": false, "top": ["ash", "bibi", "hank", "lou", "larrylawrie"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "sneakyfields", "nombre": "Sneaky Fields", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": ["emz", "ash", "rico", "bibi", "spike"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "pinholepunt", "nombre": "Pinhole Punt", "modo": "brawlBall", "pools": ["bsc"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null},
+    {"id": "humannature", "nombre": "Human Nature", "nombreEs": "Naturaleza humana", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["draco", "frank", "poco"], "nuevo": true},
+    {"id": "passingthrough", "nombre": "Passing Through", "nombreEs": "Tiro al travesaño", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "bibi", "byron"], "nuevo": true},
+    {"id": "fronttackle", "nombre": "Front Tackle", "nombreEs": "Segada salvaje", "modo": "brawlBall", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["frank", "cosmo", "byron"], "nuevo": true},
     {"id": "ringoffire", "nombre": "Ring of Fire", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["amber", "juju", "mrp", "bo", "gale"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "duelingbeetles", "nombre": "Dueling Beetles", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["amber", "chuck", "bibi", "bo", "mrp"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "parallelplays", "nombre": "Parallel Plays", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["lou", "juju", "chuck", "hank", "bibi"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "openbusiness", "nombre": "Open Business", "modo": "hotZone", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "amber", "chuck", "hank", "emz"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "framework", "nombre": "Framework", "nombreEs": "Estructura envidiable", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["amber", "tick", "squeak"], "nuevo": true},
+    {"id": "sectioned", "nombre": "Sectioned", "nombreEs": "Por secciones", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["bo", "amber", "damian"], "nuevo": true},
+    {"id": "sunkenharbor", "nombre": "Sunken Harbor", "nombreEs": "Puerto sumergido", "modo": "hotZone", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["bo", "amber", "piper"], "nuevo": true},
     {"id": "bridgetoofar", "nombre": "Bridge Too Far", "modo": "heist", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": false, "top": ["colt", "8bit", "angelo", "nori", "melodie"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "kaboomcanyon", "nombre": "Kaboom Canyon", "modo": "heist", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": true, "top": ["nori", "melodie", "amber", "mrp", "colette"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "safezone", "nombre": "Safe Zone", "modo": "heist", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["chuck", "mrp", "nori", "melodie", "gale"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "hotpotato", "nombre": "Hot Potato", "modo": "heist", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": false, "top": ["bibi", "melodie", "nita", "nori", "barley"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "pitstop", "nombre": "Pit Stop", "modo": "heist", "pools": ["bsc"], "arquetipo": "mixto", "arbustos": false, "top": [], "fuenteTop": null},
+    {"id": "printstream", "nombre": "Printstream", "nombreEs": "Corriente de gemas", "modo": "heist", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["shade", "angelo", "bo"], "nuevo": true},
+    {"id": "firesacross", "nombre": "Fires Across", "nombreEs": "Fuego cruzado", "modo": "heist", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["piper", "bo", "crow"], "nuevo": true},
+    {"id": "onthelookout", "nombre": "On the Lookout", "nombreEs": "Alerta eterna", "modo": "heist", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["edgar", "bo", "tick"], "nuevo": true},
     {"id": "goldarmgulch", "nombre": "Goldarm Gulch", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["pearl", "mrp", "edgar", "brock", "doug"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "newhorizons", "nombre": "New Horizons", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "mixto", "arbustos": false, "top": ["mrp", "sprout", "brock", "pearl", "bolt"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "flowingsprings", "nombre": "Flowing Springs", "modo": "knockout", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "angelo", "najia", "brock", "tick"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "outintheopen", "nombre": "Out in the Open", "modo": "knockout", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": false, "top": ["mrp", "angelo", "brock", "pearl", "rico"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "flaringphoenix", "nombre": "Flaring Phoenix", "modo": "knockout", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": ["mrp", "edgar", "pearl", "brock", "doug"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "bellesrock", "nombre": "Belle's Rock", "modo": "knockout", "pools": ["ranked"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "grom", "brock", "sprout", "edgar"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "soundwaves", "nombre": "Sound Waves", "nombreEs": "Ondas sónicas", "modo": "knockout", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["angelo", "belle", "wendy"], "nuevo": true},
+    {"id": "dryrun", "nombre": "Dry Run", "nombreEs": "Ensayo general", "modo": "knockout", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["piper", "shade", "wendy"], "nuevo": true},
+    {"id": "pincermovement", "nombre": "Pincer Movement", "nombreEs": "Movimiento de pinza", "modo": "knockout", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["edgar", "nani", "wendy"], "nuevo": true},
     {"id": "dryseason", "nombre": "Dry Season", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "abierto", "arbustos": true, "top": ["mrp", "sprout", "brock", "amber", "mortis"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "hideout", "nombre": "Hideout", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": true, "top": ["mrp", "sprout", "leon", "mortis", "amber"], "fuenteTop": "seemeta 3-8 nov 2026"},
     {"id": "shootingstar", "nombre": "Shooting Star", "modo": "bounty", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": true, "top": ["mrp", "bolt", "angelo", "pearl", "najia"], "fuenteTop": "seemeta 3-8 nov 2026"},
-    {"id": "layercake", "nombre": "Layer Cake", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": false, "top": ["mrp", "bo", "brock", "edgar", "amber"], "fuenteTop": "seemeta 3-8 nov 2026"}
+    {"id": "layercake", "nombre": "Layer Cake", "modo": "bounty", "pools": ["ranked", "bsc"], "arquetipo": "cerrado", "arbustos": false, "top": ["mrp", "bo", "brock", "edgar", "amber"], "fuenteTop": "seemeta 3-8 nov 2026"},
+    {"id": "endothermicshift", "nombre": "Endothermic Shift", "nombreEs": "Desplazamiento endotérmico", "modo": "bounty", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["rosa", "belle", "byron"], "nuevo": true},
+    {"id": "eyeofthebeholder", "nombre": "Eye of the Beholder", "nombreEs": "Ojo avizor", "modo": "bounty", "pools": ["ranked"], "arquetipo": "abierto", "arbustos": false, "top": [], "fuenteTop": null, "sugeridos": ["belle", "tick", "byron"], "nuevo": true},
+    {"id": "suddenmovement", "nombre": "Sudden Movement", "nombreEs": "Movimiento repentino", "modo": "bounty", "pools": ["ranked"], "arquetipo": "mixto", "arbustos": true, "top": [], "fuenteTop": null, "sugeridos": ["piper", "bo", "bolt"], "nuevo": true}
   ],
   "counters": [
     ["colette", "hank", 0.5, "daño % vida"],

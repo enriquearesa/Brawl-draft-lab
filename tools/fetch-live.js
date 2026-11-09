@@ -101,11 +101,33 @@ async function wikiImages(api, titles) {
     });
   }
 
+  // Nombres en español de los mapas (enlaces entre idiomas de la wiki en Fandom)
+  out.es = {};
+  const sinEs = meta.mapas.filter((m) => !m.nombreEs);
+  for (let i = 0; i < sinEs.length; i += 40) {
+    const chunk = sinEs.slice(i, i + 40);
+    const url = "https://brawlstars.fandom.com/api.php?action=query&format=json&redirects=1&prop=langlinks&lllang=es&lllimit=max&titles=" + encodeURIComponent(chunk.map((m) => m.nombre).join("|"));
+    const j = await get(url);
+    if (!j || !j.query) continue;
+    const back = {};
+    chunk.forEach((m) => (back[m.nombre] = m.id));
+    (j.query.normalized || []).forEach((n) => (back[n.to] = back[n.from]));
+    (j.query.redirects || []).forEach((n) => (back[n.to] = back[n.from]));
+    Object.values(j.query.pages || {}).forEach((p) => {
+      const id = back[p.title];
+      const ll = (p.langlinks || [])[0];
+      if (id && ll && ll["*"]) out.es[id] = ll["*"];
+    });
+    await sleep(2100);
+  }
+  Object.entries(out.es).forEach(([k, v]) => console.log("  [es] " + k + " → " + v));
+
   // Conservar lo que ya teníamos si esta vez alguna fuente falla
   (prev.maps || []).forEach((m) => { if (!out.maps.some((x) => x.mapId === m.mapId) && meta.mapas.some((x) => x.id === m.mapId)) out.maps.push(m); });
   Object.entries(prev.imgBrawlers || {}).forEach(([k, v]) => { if (!out.imgBrawlers[k]) out.imgBrawlers[k] = v; });
   if (!out.brawlers.length && prev.brawlers) out.brawlers = prev.brawlers;
   if (!Object.keys(out.stats).length && prev.stats) out.stats = prev.stats;
+  Object.entries(prev.es || {}).forEach(([k, v]) => { if (!out.es[k]) out.es[k] = v; });
 
   out.maps.forEach((m) => console.log("  " + m.name + " → " + m.img));
   Object.entries(out.imgBrawlers).forEach(([k, v]) => console.log("  [brawler] " + k + " → " + v));

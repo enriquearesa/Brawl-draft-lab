@@ -41,6 +41,7 @@ const mids = new Set();
   if (ARQ.indexOf(mp.arquetipo) < 0) errs.push(w + ": arquetipo inválido");
   if (!Array.isArray(mp.pools) || !mp.pools.length) errs.push(w + ": sin pools");
   (mp.top || []).forEach((id) => { if (!ids.has(id)) errs.push(w + ": top contiene brawler desconocido " + id); });
+  (mp.sugeridos || []).forEach((id) => { if (!ids.has(id)) errs.push(w + ": sugeridos contiene brawler desconocido " + id); });
 });
 Object.entries(meta.modos || {}).forEach(([k, md]) => {
   (md.mejores || []).forEach((id) => { if (!ids.has(id)) errs.push("modo " + k + ": mejores contiene " + id); });

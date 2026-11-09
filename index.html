@@ -86,6 +86,8 @@ a{color:var(--us2)}
 .tg{font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:7px;background:rgba(255,255,255,.12);text-transform:uppercase;letter-spacing:.4px}
 .tg.m{background:var(--mc);color:#0a0c1d}
 .tg.bsc{background:var(--gold);color:#2a1500}
+.tg.new{background:var(--live);color:#04211c}
+.map .en{font-size:10.5px;color:#b9c0ee;opacity:.8;margin-top:1px}
 .minis{display:flex;gap:4px}
 .minis .por{width:30px;height:30px;border-radius:9px}
 
@@ -145,7 +147,7 @@ a{color:var(--us2)}
 .team.us .pslot.f{--sc:var(--us)}.team.them .pslot.f{--sc:var(--them)}
 .flash{animation:flash .7s ease-out}
 @keyframes flash{0%{transform:scale(1.12);filter:brightness(2.2)}100%{transform:none;filter:none}}
-.stamp::before{content:"BAN";position:absolute;z-index:5;left:50%;top:50%;font-family:var(--fd);font-size:15px;color:#fff;background:var(--them);padding:1px 5px;border-radius:5px;
+.stamp::before{content:"BLOQ";position:absolute;z-index:5;left:50%;top:50%;font-family:var(--fd);font-size:15px;color:#fff;background:var(--them);padding:1px 5px;border-radius:5px;
   transform:translate(-50%,-50%) rotate(-14deg);animation:stamp .55s cubic-bezier(.2,1.6,.4,1) forwards;box-shadow:0 0 12px var(--them)}
 @keyframes stamp{0%{transform:translate(-50%,-50%) rotate(-14deg) scale(3);opacity:0}60%{opacity:1}100%{transform:translate(-50%,-50%) rotate(-14deg) scale(1);opacity:0}}
 
@@ -157,7 +159,7 @@ a{color:var(--us2)}
 .rc:hover{background:rgba(255,255,255,.07)}
 .rc:active{transform:scale(.98)}
 .rc.first{background:linear-gradient(90deg,rgba(255,198,41,.16),rgba(255,255,255,.03));border-color:rgba(255,198,41,.45)}
-.rc.first::before{content:"MEJOR OPCIÓN";position:absolute;right:-30px;top:12px;transform:rotate(35deg);background:var(--gold);color:#2a1500;font-size:8.5px;font-weight:900;padding:2px 30px;letter-spacing:.5px}
+.rc .best{font-family:Inter;font-size:10px;font-weight:900;padding:2px 6px;border-radius:6px;background:var(--gold);color:#2a1500;text-transform:uppercase}
 .rc .por{width:58px;height:58px}
 .rc .mid{flex:1;min-width:0}
 .rc .n{font-family:var(--fd);font-size:18px;line-height:1.05;display:flex;align-items:center;gap:6px}
