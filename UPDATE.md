@@ -27,12 +27,12 @@ Actualiza solo lo que haya cambiado:
 | Qué | Dónde | Fuente recomendada |
 |---|---|---|
 | Tier global de cada brawler (`S+`…`D`) | `brawlers[].tier` | seemeta.com/en/brawl-stars/tier-list (datos de Ranked) |
-| Top 5 por mapa, en orden | `mapas[].top` (+ `fuenteTop`) | seemeta.com/en/brawl-stars/maps (solo mapas con etiqueta *Ranked*) |
+| Top 5 por mapa, en orden | `mapas[].top` (+ `fuenteTop`; cuando un mapa nuevo tenga datos, rellena `top` y quita `nuevo`) | seemeta.com/en/brawl-stars/maps (solo mapas con etiqueta *Ranked*) |
 | Pool de mapas Ranked | `mapas[].pools` incluye `"ranked"` | mapas etiquetados *Ranked* en seemeta / notas de temporada |
 | Pool BSC | `mapas[].pools` incluye `"bsc"` | rulebook BSC vigente |
 | Mejores por modo | `modos.<modo>.mejores` | seemeta, sección "best by mode" |
 | Brawler nuevo | añadir a `brawlers` | clase, alcance (1-5), tags, `tier: "?"` si no hay datos, `gameId: null` si no se conoce |
-| Mapa nuevo | añadir a `mapas` | `arquetipo` (abierto/mixto/cerrado), `arbustos`, `modo` |
+| Mapa nuevo | añadir a `mapas` | `nombre` (inglés), `nombreEs` (nombre oficial en español si aparece en las notas oficiales en español), `arquetipo` (abierto/mixto/cerrado), `arbustos`, `modo`; si aún no hay estadísticas, `top: []` y `sugeridos` con 3 brawlers recomendados por guías |
 | Counters notables | `counters` `[a, b, ventaja -1..1, nota]` | solo matchups muy claros |
 
 Reglas:

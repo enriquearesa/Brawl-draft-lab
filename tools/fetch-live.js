@@ -130,31 +130,6 @@ async function wikiImages(api, titles) {
     if (hit) out.es[m.id] = hit.title;
     await sleep(1200);
   }
-  // Respaldo: enlaces de las páginas en español de seemeta (texto del enlace = nombre del juego en español)
-  if (meta.mapas.some((x) => !x.nombreEs && !out.es[x.id])) {
-    out.esSeemeta = {};
-    for (const page of ["https://seemeta.com/es/brawl-stars/maps", "https://seemeta.com/es/brawl-stars/map-rotation"]) {
-      try {
-        const r = await fetch(page, { headers: { "User-Agent": UA["User-Agent"], "Accept-Language": "es-ES" } });
-        if (!r.ok) { console.log("  [seemeta-es] " + page + " → " + r.status); continue; }
-        const html = await r.text();
-        const re = /href="[^"]*[?&](?:amp;)?map=([^"&]+)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
-        let mm, n = 0;
-        while ((mm = re.exec(html))) {
-          const en = decodeURIComponent(mm[1].replace(/\+/g, " ")).replace(/&#39;|&#x27;/g, "'");
-          const txt = mm[2].replace(/<[^>]+>/g, " ").replace(/&#39;|&#x27;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
-          const m = meta.mapas.find((x) => norm(x.nombre) === norm(en));
-          if (m && txt && norm(txt) !== norm(en) && txt.length < 45 && !out.esSeemeta[m.id]) {
-            out.esSeemeta[m.id] = txt;
-            console.log("  [seemeta-es] " + en + " → " + txt);
-          }
-          n++;
-        }
-        console.log("  [seemeta-es] " + page + ": " + n + " enlaces de mapa");
-      } catch (e) { console.log("  [seemeta-es] " + page + " → " + e.message); }
-    }
-  }
-
   // Respaldo de imágenes: búsqueda en la wiki inglesa (p. ej. diferencias de mayúsculas)
   for (const m of meta.mapas.filter((x) => !out.maps.some((y) => y.mapId === x.id))) {
     const url = "https://brawlstars.fandom.com/api.php?action=query&format=json&generator=search&gsrnamespace=0&gsrlimit=5&gsrsearch=" +
