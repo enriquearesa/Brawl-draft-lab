@@ -2,7 +2,7 @@
 
 Asistente visual de pick & ban para Brawl Stars (Ranked y formato pro del BSC). Marca lo que pasa en tu draft y te recomienda bans y picks en cada turno, con un plan de partida al final.
 
-**Web:** https://enriquearesa.github.io/brawl-draft-lab/
+**Web:** https://enriquearesa.github.io/Brawl-draft-lab/
 
 ## Cómo funciona
 
