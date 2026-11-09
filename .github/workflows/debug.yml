@@ -1,0 +1,13 @@
+name: debug-es
+on:
+  push:
+    branches: [main]
+    paths: [tools/debug-es.js]
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node tools/debug-es.js
