@@ -36,7 +36,8 @@
     if (!b) return "";
     const c = (CLASS[b.clase] || CLASS["?"]).c;
     const src = bImg(b);
-    return '<div class="por ' + (cls || "") + '" style="--cc:' + c + '"><span class="ini">' + esc(ini(b.nombre)) + "</span>" +
+    const wiki = src && !b.gameId;
+    return '<div class="por ' + (cls || "") + (wiki ? " wiki" : "") + '" style="--cc:' + c + '"><span class="ini">' + esc(ini(b.nombre)) + "</span>" +
       (src ? '<img src="' + src + '" alt="' + esc(b.nombre) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">' : "") + "</div>";
   }
   function modeIcon(modo) {
@@ -304,7 +305,7 @@
       h += "</div>";
     });
     if (!maps.length) h += '<div class="empty">No hay mapas de este modo en este pool. Activa «Todos los mapas».</div>';
-    h += '<div class="foot">Meta: ' + esc(META.meta.parche) + " · v" + META.meta.version + '<br>Imágenes: Brawlify CDN · No afiliado a Supercell<br><a href="#" data-act="changelog">Novedades y fuentes</a></div>';
+    h += '<div class="foot">Meta: ' + esc(META.meta.parche) + " · v" + META.meta.version + '<br>Retratos: Brawlify CDN · Mapas: Brawl Stars Wiki (Fandom, CC BY-SA) · No afiliado a Supercell<br><a href="#" data-act="changelog">Novedades y fuentes</a></div>';
     return h;
   }
 
