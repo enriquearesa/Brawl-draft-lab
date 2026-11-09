@@ -1,62 +1,118 @@
 #!/usr/bin/env node
-/* Descarga datos en vivo de Brawlify (IDs de imágenes de brawlers y mapas + win rates por mapa)
-   y los guarda en data/live.json. Lo ejecuta GitHub Actions (.github/workflows/live.yml),
-   porque el navegador no puede llamar a la API de Brawlify directamente (CORS). */
+/* Genera data/live.json con imágenes de mapas (y de brawlers sin ID) + win rates si hay fuente.
+   Lo ejecuta GitHub Actions (.github/workflows/live.yml). Fuentes, en orden:
+     1. API de Brawlify (IDs + win rates) — actualmente responde 403, se deja por si vuelve.
+     2. Wiki de Brawl Stars en Fandom (MediaWiki API, imagen principal de cada página).
+     3. Liquipedia (MediaWiki API) como respaldo. */
 const fs = require("fs");
 const path = require("path");
 const root = path.join(__dirname, "..");
-const API = "https://api.brawlify.com/v1";
-const CDN = "https://cdn.brawlify.com";
-const UA = { "User-Agent": "DraftLab/1.0 (+https://github.com/enriquearesa/Brawl-draft-lab)", Accept: "application/json" };
+const UA = { "User-Agent": "DraftLab/1.0 (https://github.com/enriquearesa/Brawl-draft-lab; fan tool)", Accept: "application/json" };
 const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
 const listOf = (j) => (j && (j.list || j.items || (Array.isArray(j) ? j : null))) || [];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function get(url) {
-  for (let i = 0; i < 3; i++) {
+async function get(url, tries) {
+  for (let i = 0; i < (tries || 2); i++) {
     try {
       const r = await fetch(url, { headers: UA });
       if (r.ok) return await r.json();
-      console.warn(url, "→", r.status);
-    } catch (e) { console.warn(url, "→", e.message); }
+      console.warn("  " + url.slice(0, 90) + " → " + r.status);
+    } catch (e) { console.warn("  " + url.slice(0, 90) + " → " + e.message); }
     await sleep(1500 * (i + 1));
   }
   return null;
 }
 
+// Imagen principal de varias páginas de una wiki MediaWiki (hasta 50 títulos por llamada)
+async function wikiImages(api, titles) {
+  const out = {};
+  for (let i = 0; i < titles.length; i += 40) {
+    const chunk = titles.slice(i, i + 40);
+    const url = api + "?action=query&format=json&redirects=1&prop=pageimages&piprop=original&pilicense=any&titles=" + encodeURIComponent(chunk.join("|"));
+    const j = await get(url);
+    if (!j || !j.query) continue;
+    const back = {};
+    chunk.forEach((t) => (back[t] = t));
+    (j.query.normalized || []).forEach((n) => (back[n.to] = back[n.from] || n.from));
+    (j.query.redirects || []).forEach((n) => (back[n.to] = back[n.from] || n.from));
+    Object.values(j.query.pages || {}).forEach((p) => {
+      const orig = back[p.title] || p.title;
+      if (p.original && p.original.source) out[orig] = p.original.source;
+    });
+    await sleep(2100);
+  }
+  return out;
+}
+
 (async () => {
   const meta = JSON.parse(fs.readFileSync(path.join(root, "data/meta.json"), "utf8"));
-  const [bj, mj] = await Promise.all([get(API + "/brawlers"), get(API + "/maps")]);
-  const brawlers = listOf(bj).map((x) => ({ id: x.id, name: x.name, cls: x.class && x.class.name })).filter((x) => x.id && x.name);
-  const allMaps = listOf(mj);
-  if (!brawlers.length && !allMaps.length) { console.error("Brawlify no devolvió datos"); process.exit(1); }
+  let prev = {};
+  try { prev = JSON.parse(fs.readFileSync(path.join(root, "data/live.json"), "utf8")); } catch (e) {}
 
-  const maps = [];
-  const stats = {};
-  for (const m of meta.mapas) {
-    const modeEn = norm((meta.modos[m.modo] || {}).en);
-    const cands = allMaps.filter((x) => norm(x.name) === norm(m.nombre));
-    if (!cands.length) { console.warn("Sin coincidencia en Brawlify:", m.nombre); continue; }
-    cands.sort((a, b) => {
-      const ma = norm(a.gameMode && a.gameMode.name) === modeEn ? 0 : 1;
-      const mb = norm(b.gameMode && b.gameMode.name) === modeEn ? 0 : 1;
-      return ma - mb || (a.disabled ? 1 : 0) - (b.disabled ? 1 : 0) || String(b.lastActive || "").localeCompare(String(a.lastActive || ""));
-    });
-    const x = cands[0];
-    maps.push({ id: x.id, name: m.nombre, mapId: m.id, img: x.imageUrl || CDN + "/maps/regular/" + x.id + ".png" });
-    const d = await get(API + "/maps/" + x.id);
-    const arr = (d && (d.stats || (d.map && d.map.stats))) || [];
-    const s = {};
-    arr.forEach((y) => {
-      const id = y.brawler || y.brawlerId || y.id;
-      const wr = y.winRate != null ? y.winRate : y.winrate;
-      if (id && wr != null) s[id] = { wr: Math.round(+wr * 10) / 10, use: Math.round(+(y.useRate || 0) * 100) / 100 };
-    });
-    if (Object.keys(s).length) stats[m.id] = s;
-    await sleep(250);
+  const out = { t: new Date().toISOString(), fuentes: [], brawlers: [], maps: [], stats: {}, imgBrawlers: {} };
+
+  // 1) Brawlify
+  console.log("Brawlify…");
+  const [bj, mj] = await Promise.all([get("https://api.brawlify.com/v1/brawlers"), get("https://api.brawlify.com/v1/maps")]);
+  const bl = listOf(bj), ml = listOf(mj);
+  if (bl.length || ml.length) {
+    out.fuentes.push("brawlify");
+    out.brawlers = bl.map((x) => ({ id: x.id, name: x.name, cls: x.class && x.class.name })).filter((x) => x.id && x.name);
+    for (const m of meta.mapas) {
+      const modeEn = norm((meta.modos[m.modo] || {}).en);
+      const c = ml.filter((x) => norm(x.name) === norm(m.nombre)).sort((a, b) => (norm(a.gameMode && a.gameMode.name) === modeEn ? 0 : 1) - (norm(b.gameMode && b.gameMode.name) === modeEn ? 0 : 1))[0];
+      if (!c) continue;
+      out.maps.push({ id: c.id, name: m.nombre, mapId: m.id, img: c.imageUrl || "https://cdn.brawlify.com/maps/regular/" + c.id + ".png" });
+      const d = await get("https://api.brawlify.com/v1/maps/" + c.id, 1);
+      const s = {};
+      ((d && d.stats) || []).forEach((y) => { const id = y.brawler || y.brawlerId; if (id && y.winRate != null) s[id] = { wr: Math.round(y.winRate * 10) / 10, use: +(y.useRate || 0) }; });
+      if (Object.keys(s).length) out.stats[m.id] = s;
+      await sleep(250);
+    }
   }
 
-  const out = { t: new Date().toISOString(), fuente: "api.brawlify.com", brawlers, maps, stats };
+  // 2) y 3) Wikis para los mapas que falten y brawlers sin ID de imagen
+  const have = new Set(out.maps.map((m) => m.mapId));
+  const missing = meta.mapas.filter((m) => !have.has(m.id));
+  const noId = meta.brawlers.filter((b) => !b.gameId);
+  const wikis = [
+    ["fandom", "https://brawlstars.fandom.com/api.php"],
+    ["liquipedia", "https://liquipedia.net/brawlstars/api.php"],
+  ];
+  let pend = missing.slice();
+  let pendB = noId.slice();
+  for (const [name, api] of wikis) {
+    if (!pend.length && !pendB.length) break;
+    console.log(name + "… (" + pend.length + " mapas, " + pendB.length + " brawlers)");
+    const imgs = await wikiImages(api, pend.map((m) => m.nombre).concat(pendB.map((b) => b.nombre)));
+    if (Object.keys(imgs).length) out.fuentes.push(name);
+    pend = pend.filter((m) => {
+      const src = imgs[m.nombre];
+      if (!src) return true;
+      out.maps.push({ id: null, name: m.nombre, mapId: m.id, img: src, fuente: name });
+      return false;
+    });
+    pendB = pendB.filter((b) => {
+      const src = imgs[b.nombre];
+      if (!src) return true;
+      out.imgBrawlers[b.id] = src;
+      return false;
+    });
+  }
+
+  // Conservar lo que ya teníamos si esta vez alguna fuente falla
+  (prev.maps || []).forEach((m) => { if (!out.maps.some((x) => x.mapId === m.mapId) && meta.mapas.some((x) => x.id === m.mapId)) out.maps.push(m); });
+  Object.entries(prev.imgBrawlers || {}).forEach(([k, v]) => { if (!out.imgBrawlers[k]) out.imgBrawlers[k] = v; });
+  if (!out.brawlers.length && prev.brawlers) out.brawlers = prev.brawlers;
+  if (!Object.keys(out.stats).length && prev.stats) out.stats = prev.stats;
+
+  out.maps.forEach((m) => console.log("  " + m.name + " → " + m.img));
+  Object.entries(out.imgBrawlers).forEach(([k, v]) => console.log("  [brawler] " + k + " → " + v));
+  if (!out.maps.length) { console.error("No se encontró ninguna imagen de mapa"); process.exit(1); }
+
   fs.writeFileSync(path.join(root, "data/live.json"), JSON.stringify(out) + "\n");
-  console.log("✓ live.json · " + brawlers.length + " brawlers · " + maps.length + "/" + meta.mapas.length + " mapas con imagen · " + Object.keys(stats).length + " con estadísticas");
+  console.log("✓ live.json · " + out.maps.length + "/" + meta.mapas.length + " mapas con imagen · " +
+    Object.keys(out.imgBrawlers).length + "/" + noId.length + " brawlers sin ID con imagen · fuentes: " + out.fuentes.join(", "));
+  if (pend.length) console.log("Sin imagen: " + pend.map((m) => m.nombre).join(", "));
 })();

@@ -30,14 +30,14 @@
   };
 
   // ---------------- utilidades visuales ----------------
-  function bImg(b) { return b && b.gameId ? CDN + "/brawlers/borderless/" + b.gameId + ".png" : null; }
+  function bImg(b) { return b && b.gameId ? CDN + "/brawlers/borderless/" + b.gameId + ".png" : (b && b.img) || null; }
   function ini(n) { const p = n.replace(/[^A-Za-z0-9 &]/g, "").split(/[ &]+/).filter(Boolean); return (p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase(); }
   function por(b, cls) {
     if (!b) return "";
     const c = (CLASS[b.clase] || CLASS["?"]).c;
     const src = bImg(b);
     return '<div class="por ' + (cls || "") + '" style="--cc:' + c + '"><span class="ini">' + esc(ini(b.nombre)) + "</span>" +
-      (src ? '<img src="' + src + '" alt="' + esc(b.nombre) + '" loading="lazy" decoding="async" onerror="this.remove()">' : "") + "</div>";
+      (src ? '<img src="' + src + '" alt="' + esc(b.nombre) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">' : "") + "</div>";
   }
   function modeIcon(modo) {
     const m = META.modos[modo];
@@ -50,7 +50,7 @@
   function mapArt(m, big) {
     const src = mapImg(m);
     return '<div class="fb">' + (MODE_EMOJI[m.modo] || "🎮") + "</div>" +
-      (src ? '<img src="' + src + '" alt="" loading="lazy" onerror="this.remove()">' : "");
+      (src ? '<img src="' + esc(src) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : "");
   }
   function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("on"), 1800); }
   function ago(iso) {
@@ -91,6 +91,7 @@
     const maps = {};
     (data.maps || []).forEach((m) => { if (m.name) maps[norm(m.name)] = { id: m.id, img: m.img }; });
     S.live.maps = maps;
+    Object.entries(data.imgBrawlers || {}).forEach(([id, src]) => { if (E.byId[id] && !E.byId[id].gameId) E.byId[id].img = src; });
   }
 
   async function loadLive() {
@@ -258,7 +259,7 @@
   function metaPill() {
     const m = META.meta;
     const dot = S.live.ok === true ? "on" : S.live.ok === false ? "off" : "";
-    const live = S.live.ok === true ? "Brawlify en vivo" + (S.live.t ? " (" + ago(S.live.t) + ")" : "") : S.live.ok === false ? "Sin datos en vivo" : "Conectando…";
+    const live = S.live.ok === true ? (S.live.t ? "Imágenes y datos " + ago(S.live.t) : "Brawlify en vivo") : S.live.ok === false ? "Sin datos en vivo" : "Conectando…";
     return '<div class="metapill" data-act="changelog"><span class="dot ' + dot + '"></span><b>' + esc(m.temporada) + "</b>" +
       "<span>· meta del " + esc(fmtDate(m.fechaDatos)) + " · comprobado " + esc(ago(m.comprobado)) + "</span><span>· " + live + "</span></div>";
   }
@@ -314,7 +315,7 @@
     const md = META.modos[m.modo];
     const rules = META.reglas[d.format];
     const img = mapImg(m);
-    let h = '<div class="dbg">' + (img ? '<img src="' + img + '" alt="">' : "") + "</div>";
+    let h = '<div class="dbg">' + (img ? '<img src="' + esc(img) + '" alt="" referrerpolicy="no-referrer" onerror="this.remove()">' : "") + "</div>";
     h += '<div class="dh"><button class="ib" data-act="home">←</button><div class="t"><div class="nm">' + esc(m.nombre) + '</div><div class="md">' + modeIcon(m.modo) +
       esc(md.nombre) + " · " + esc(rules.nombre) + "</div></div>" +
       '<button class="ib" data-act="undo" title="Deshacer">↶</button><button class="ib" data-act="reset" title="Reiniciar">⟲</button></div>';
