@@ -2,7 +2,7 @@
   "meta": {
     "version": 4,
     "fechaDatos": "2026-11-11",
-    "comprobado": "2026-11-12T12:50:00+01:00",
+    "comprobado": "2026-11-13T12:50:00+01:00",
     "revisionCompleta": "2026-11-11",
     "parche": "Release Notes noviembre 2026 (3 nov) + mantenimiento del 11 nov",
     "temporada": "Temporada 56 · Brawl Vice (desde 5 nov 2026)",
@@ -43,6 +43,7 @@
     ],
     "avisos": [
       "Estadísticas de Competitivo de seemeta (todos los rangos, 3-10 nov 2026; se actualizan solas cada 6 h). No hay datos públicos solo de Mítico+.",
+      "⚠ Estadísticas sin actualizar desde el 10 nov: seemeta responde 403 a la Action «Imágenes y datos en vivo» (tier list y mapas), así que se conserva la última copia buena. seemeta ya publica datos hasta el 12 nov.",
       "Las estadísticas actuales son anteriores al mantenimiento del 11 nov (nerfs a Mr. P, Amber, Wendy, Gale, Lou, Chester, Vince y Mandy): sus tiers pueden estar sobrevalorados hasta que entren datos nuevos.",
       "18 mapas nuevos de la comunidad aún sin estadísticas: las recomendaciones usan su diseño y sugerencias iniciales.",
       "Thunder Frogs anunciado para noviembre (aún sin datos; ajustes previos al lanzamiento el 11 nov). Rey y Ruby llegan en diciembre."
