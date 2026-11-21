@@ -1,10 +1,10 @@
 {
   "meta": {
-    "version": 4,
-    "fechaDatos": "2026-11-11",
-    "comprobado": "2026-11-20T12:45:00+01:00",
+    "version": 5,
+    "fechaDatos": "2026-11-21",
+    "comprobado": "2026-11-21T12:45:00+01:00",
     "revisionCompleta": "2026-11-11",
-    "parche": "Release Notes noviembre 2026 (3 nov) + mantenimiento del 11 nov",
+    "parche": "Release Notes noviembre 2026 (3 nov) + mantenimiento del 11 nov + Thunder Frogs (19 nov)",
     "temporada": "Temporada 56 · Brawl Vice (desde 5 nov 2026)",
     "proximoHito": "World Finals BSC · Tokio · 20-22 nov 2026",
     "fuentes": [
@@ -21,8 +21,8 @@
         "url": "https://supercell.com/en/games/brawlstars/es/blog/game-updates/notas-de-la-actualización-de-noviembre-de-2026"
       },
       {
-        "nombre": "Sportsdunia · Mapas competitivos de la comunidad",
-        "url": "https://www.sportsdunia.com/gaming/brawl-stars-new-competitive-maps-announced"
+        "nombre": "Sportsdunia · Evento de Thunder Frogs (desde el 19 nov 2026)",
+        "url": "https://www.sportsdunia.com/gaming/brawl-stars-thunder-frogs-box-drop-chances"
       },
       {
         "nombre": "TrophyCoach · Actualización noviembre 2026",
@@ -43,10 +43,10 @@
     ],
     "avisos": [
       "Estadísticas de Competitivo de seemeta (todos los rangos, 3-10 nov 2026; se actualizan solas cada 6 h). No hay datos públicos solo de Mítico+.",
-      "⚠ Estadísticas sin actualizar desde el 10 nov: seemeta sigue respondiendo 403 a la Action «Imágenes y datos en vivo» (tier list y mapas; última ejecución 20 nov), así que se conserva la última copia buena y el refresco semanal de tiers queda pendiente. seemeta ya publica datos hasta el 17 nov.",
+      "⚠ Estadísticas sin actualizar desde el 10 nov: la Action «Imágenes y datos en vivo» sigue sin poder descargar seemeta (tier list y mapas: «fetch failed» tras 3 intentos; última ejecución 21 nov), así que se conserva la última copia buena y el refresco semanal de tiers queda pendiente.",
       "Las estadísticas actuales son anteriores al mantenimiento del 11 nov (nerfs a Mr. P, Amber, Wendy, Gale, Lou, Chester, Vince y Mandy): sus tiers pueden estar sobrevalorados hasta que entren datos nuevos.",
       "18 mapas nuevos de la comunidad aún sin estadísticas: las recomendaciones usan su diseño y sugerencias iniciales.",
-      "Thunder Frogs anunciado para noviembre (aún sin datos; ajustes previos al lanzamiento el 11 nov). Rey y Ruby llegan en diciembre."
+      "Thunder Frogs (legendario, artillero) disponible desde el 19 nov con su evento de brawler nuevo: aún sin estadísticas (tier «?»). Rey y Ruby llegan en diciembre."
     ]
   },
   "changelog": [
@@ -85,6 +85,16 @@
         "Mandy: devolución de recarga de Cookie Crumbs con Buffie 50 % → 30 %; Caramelize ralentiza 10-25 %; Cookie Crumbs y Caramelize ahora cargan súper",
         "Ajustes previos al lanzamiento de Thunder Frogs y Rey (aún no disponibles)",
         "Tiers desde seemeta: suben Tara (A→S), Draco y Frank (C→B), Dynamike y Jae-Yong (D→C); bajan Nita (S→A), Vince y Glowy (B→C), Gene y Meeple (C→D)"
+      ]
+    },
+    {
+      "fecha": "2026-11-21",
+      "resumen": "Llega Thunder Frogs (19 nov). Sin nuevos ajustes de balance; estadísticas de seemeta aún sin refrescar.",
+      "cambios": [
+        "Nuevo brawler: Thunder Frogs (legendario, artillero), disponible desde el 19 nov con el evento de brawler nuevo; tier «?» hasta que haya estadísticas",
+        "Llega con los ajustes previos al lanzamiento del 11 nov: daño central del ataque principal 1050 → 900, curación del gadget Soothing Shock 2000 → 1500, curación de la habilidad estelar Leech Landing 75 % → 50 %",
+        "Sin cambios de balance, pool de Ranked ni reglas de pick & ban desde el 11 nov",
+        "Tiers sin cambios: la Action sigue sin poder descargar seemeta desde el 10 nov"
       ]
     }
   ],
@@ -323,6 +333,7 @@
     {"id": "penny", "nombre": "Penny", "clase": "AR", "gameId": 16000019, "alcance": 4, "tags": ["Z"], "tier": "C"},
     {"id": "sprout", "nombre": "Sprout", "clase": "AR", "gameId": 16000037, "alcance": 4, "tags": ["Z"], "tier": "A"},
     {"id": "tick", "nombre": "Tick", "clase": "AR", "gameId": 16000022, "alcance": 4, "tags": ["Z"], "tier": "C"},
+    {"id": "thunderfrogs", "nombre": "Thunder Frogs", "clase": "AR", "gameId": null, "alcance": 4, "tags": ["H"], "tier": "?"},
     {"id": "amber", "nombre": "Amber", "clase": "CT", "gameId": 16000040, "alcance": 3, "tags": ["Z"], "tier": "S"},
     {"id": "bo", "nombre": "Bo", "clase": "CT", "gameId": 16000014, "alcance": 4, "tags": ["Z"], "tier": "S+"},
     {"id": "charlie", "nombre": "Charlie", "clase": "CT", "gameId": 16000074, "alcance": 3, "tags": ["C"], "tier": "D"},
